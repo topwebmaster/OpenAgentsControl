@@ -119,6 +119,22 @@
           "context:external-libraries-workflow"
         ],
         "category": "core"
+      },
+      {
+        "id": "orchestrator",
+        "name": "Orchestrator",
+        "type": "agent",
+        "path": ".opencode/agent/core/orchestrator.md",
+        "description": "Capability-first orchestration agent for long-running, multi-agent delivery with aggressive decomposition, watchdog monitoring, and independent validation",
+        "tags": ["orchestration", "multi-agent", "primary"],
+        "dependencies": [
+          "subagent:task-manager",
+          "subagent:contextscout",
+          "subagent:externalscout",
+          "context:standards-code",
+          "context:task-delegation-basics"
+        ],
+        "category": "core"
       }
     ],
     "subagents": [
@@ -2583,6 +2599,7 @@
       "components": [
         "agent:openagent",
         "agent:opencoder",
+        "agent:orchestrator",
         "subagent:task-manager",
         "subagent:frontend-specialist",
         "subagent:devops-specialist",
@@ -2661,6 +2678,7 @@
       "components": [
         "agent:openagent",
         "agent:opencoder",
+        "agent:orchestrator",
         "agent:eval-runner",
         "agent:copywriter",
         "agent:technical-writer",
@@ -2717,6 +2735,7 @@
       "components": [
         "agent:openagent",
         "agent:opencoder",
+        "agent:orchestrator",
         "agent:system-builder",
         "agent:repo-manager",
         "agent:eval-runner",
