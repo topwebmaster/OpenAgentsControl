@@ -180,15 +180,27 @@ fetch_update_source() {
     local destination_path="$2"
     local repo_relative_path=".opencode/${relative_path}"
 
-    if [ -n "$LOCAL_SOURCE_ROOT" ] && [ -f "$LOCAL_SOURCE_ROOT/$repo_relative_path" ]; then
-        if [ "$LOCAL_SOURCE_ROOT/$repo_relative_path" -ef "$destination_path" ]; then
-            return 0
+    if [ -n "$LOCAL_SOURCE_ROOT" ]; then
+        local source_path=""
+        if [ -f "$LOCAL_SOURCE_ROOT/$repo_relative_path" ]; then
+            source_path="$LOCAL_SOURCE_ROOT/$repo_relative_path"
+        elif [ -f "$LOCAL_SOURCE_ROOT/${relative_path}" ]; then
+            source_path="$LOCAL_SOURCE_ROOT/${relative_path}"
         fi
-        cp "$LOCAL_SOURCE_ROOT/$repo_relative_path" "$destination_path"
-        return $?
+
+        if [ -n "$source_path" ]; then
+            if [ "$source_path" -ef "$destination_path" ]; then
+                return 0
+            fi
+            cp "$source_path" "$destination_path"
+            return $?
+        fi
     fi
 
-    curl -fsSL "${RAW_URL}/${repo_relative_path}" -o "$destination_path"
+    if curl -fsSL "${RAW_URL}/${repo_relative_path}" -o "$destination_path" 2>/dev/null; then
+        return 0
+    fi
+    curl -fsSL "${RAW_URL}/${relative_path}" -o "$destination_path"
 }
 
 init_repository_context
