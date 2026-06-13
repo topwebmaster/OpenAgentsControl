@@ -194,13 +194,27 @@ fetch_update_source() {
             fi
             cp "$source_path" "$destination_path"
             return $?
+        else
+            return 2
         fi
     fi
 
-    if curl -fsSL "${RAW_URL}/${repo_relative_path}" -o "$destination_path" 2>/dev/null; then
+    local curl_err=0
+    curl -fsSL "${RAW_URL}/${repo_relative_path}" -o "$destination_path" 2>/dev/null || curl_err=$?
+    if [ "$curl_err" -eq 0 ]; then
         return 0
     fi
-    curl -fsSL "${RAW_URL}/${relative_path}" -o "$destination_path"
+
+    local curl_err2=0
+    curl -fsSL "${RAW_URL}/${relative_path}" -o "$destination_path" 2>/dev/null || curl_err2=$?
+    if [ "$curl_err2" -eq 0 ]; then
+        return 0
+    fi
+
+    if [ "$curl_err" -eq 22 ] && [ "$curl_err2" -eq 22 ]; then
+        return 2
+    fi
+    return 1
 }
 
 init_repository_context
@@ -315,15 +329,24 @@ update_component() {
     cp "$path" "$backup"
     BACKUP_FILES+=("$backup")
 
-    if fetch_update_source "$relative_path" "$path" 2>/dev/null; then
+    local res=0
+    fetch_update_source "$relative_path" "$path" 2>/dev/null || res=$?
+
+    # Remove from tracking array (bash 3.2 compatible)
+    local new_backups=()
+    for f in "${BACKUP_FILES[@]}"; do
+        [ "$f" != "$backup" ] && new_backups+=("$f")
+    done
+    BACKUP_FILES=("${new_backups[@]+"${new_backups[@]}"}")
+
+    if [ "$res" -eq 0 ]; then
         print_success "Updated $path"
         rm -f "$backup"
-        # Remove from tracking array (bash 3.2 compatible)
-        local new_backups=()
-        for f in "${BACKUP_FILES[@]}"; do
-            [ "$f" != "$backup" ] && new_backups+=("$f")
-        done
-        BACKUP_FILES=("${new_backups[@]+"${new_backups[@]}"}")
+        return 0
+    elif [ "$res" -eq 2 ]; then
+        # File is not in the source repository (project-specific or custom file)
+        mv "$backup" "$path"
+        return 0
     else
         print_warning "Could not update $path — restoring backup"
         mv "$backup" "$path"
