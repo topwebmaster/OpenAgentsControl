@@ -181,6 +181,9 @@ fetch_update_source() {
     local repo_relative_path=".opencode/${relative_path}"
 
     if [ -n "$LOCAL_SOURCE_ROOT" ] && [ -f "$LOCAL_SOURCE_ROOT/$repo_relative_path" ]; then
+        if [ "$LOCAL_SOURCE_ROOT/$repo_relative_path" -ef "$destination_path" ]; then
+            return 0
+        fi
         cp "$LOCAL_SOURCE_ROOT/$repo_relative_path" "$destination_path"
         return $?
     fi
@@ -328,7 +331,7 @@ update_all_components() {
         else
             failed=$((failed + 1))
         fi
-    done < <(find "$install_dir" -name "*.md" -type f -print0)
+    done < <(find "$install_dir" -name "*.md" -type f -not -path "*/node_modules/*" -print0)
 
     # Update TypeScript files
     while IFS= read -r -d '' file; do
@@ -346,7 +349,7 @@ update_all_components() {
         else
             failed=$((failed + 1))
         fi
-    done < <(find "$install_dir" -name "*.sh" -type f -print0)
+    done < <(find "$install_dir" -name "*.sh" -type f -not -path "*/node_modules/*" -print0)
 
     print_info "Updated: $updated file(s), failed: $failed file(s)"
 }
