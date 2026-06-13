@@ -11,7 +11,7 @@
 
 This guide covers how to work with GitHub issues and the project board to track and process different requests, features, and improvements.
 
-**Project Board**: https://github.com/users/darrenhinde/projects/2/views/2
+**Project Board**: https://github.com/users/topwebmaster/projects/2/views/2
 
 **Time**: Varies by task
 
@@ -21,22 +21,22 @@ This guide covers how to work with GitHub issues and the project board to track 
 
 ```bash
 # List issues
-gh issue list --repo darrenhinde/OpenAgentsControl
+gh issue list --repo topwebmaster/OpenAgentsControl
 
 # Create issue
-gh issue create --repo darrenhinde/OpenAgentsControl --title "Title" --body "Body" --label "label1,label2"
+gh issue create --repo topwebmaster/OpenAgentsControl --title "Title" --body "Body" --label "label1,label2"
 
 # Add issue to project
-gh project item-add 2 --owner darrenhinde --url https://github.com/darrenhinde/OpenAgentsControl/issues/NUMBER
+gh project item-add 2 --owner topwebmaster --url https://github.com/topwebmaster/OpenAgentsControl/issues/NUMBER
 
 # View issue
-gh issue view NUMBER --repo darrenhinde/OpenAgentsControl
+gh issue view NUMBER --repo topwebmaster/OpenAgentsControl
 
 # Update issue
-gh issue edit NUMBER --repo darrenhinde/OpenAgentsControl --add-label "new-label"
+gh issue edit NUMBER --repo topwebmaster/OpenAgentsControl --add-label "new-label"
 
 # Close issue
-gh issue close NUMBER --repo darrenhinde/OpenAgentsControl
+gh issue close NUMBER --repo topwebmaster/OpenAgentsControl
 ```
 
 ---
@@ -46,20 +46,24 @@ gh issue close NUMBER --repo darrenhinde/OpenAgentsControl
 ### Issue Types
 
 **Feature Request**
+
 - Labels: `feature`, `enhancement`
 - Include: Goals, key features, success criteria
 - Template: See "Feature Issue Template" below
 
 **Bug Report**
+
 - Labels: `bug`
 - Include: Steps to reproduce, expected vs actual behavior
 - Template: See "Bug Issue Template" below
 
 **Improvement**
+
 - Labels: `enhancement`, `framework`
 - Include: Current state, proposed improvement, impact
 
 **Question**
+
 - Labels: `question`
 - Include: Context, specific question, use case
 
@@ -81,14 +85,14 @@ gh issue close NUMBER --repo darrenhinde/OpenAgentsControl
 ```bash
 # Basic issue
 gh issue create \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --title "Add new feature X" \
   --body "Description of feature" \
   --label "feature,priority-medium"
 
 # Feature with detailed body
 gh issue create \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --title "Build plugin system" \
   --label "feature,framework,priority-high" \
   --body "$(cat <<'EOF'
@@ -119,8 +123,8 @@ EOF
 ```bash
 # Add issue to project
 gh project item-add 2 \
-  --owner darrenhinde \
-  --url https://github.com/darrenhinde/OpenAgentsControl/issues/NUMBER
+  --owner topwebmaster \
+  --url https://github.com/topwebmaster/OpenAgentsControl/issues/NUMBER
 ```
 
 ### Add Multiple Issues
@@ -129,8 +133,8 @@ gh project item-add 2 \
 # Add issues 137-142 to project
 for i in {137..142}; do
   gh project item-add 2 \
-    --owner darrenhinde \
-    --url https://github.com/darrenhinde/OpenAgentsControl/issues/$i
+    --owner topwebmaster \
+    --url https://github.com/topwebmaster/OpenAgentsControl/issues/$i
 done
 ```
 
@@ -138,7 +142,7 @@ done
 
 ```bash
 # View project items
-gh project item-list 2 --owner darrenhinde --format json | jq '.items[] | {title, status}'
+gh project item-list 2 --owner topwebmaster --format json | jq '.items[] | {title, status}'
 ```
 
 ---
@@ -165,12 +169,12 @@ gh project item-list 2 --owner darrenhinde --format json | jq '.items[] | {title
 ```bash
 # Assign to yourself
 gh issue edit NUMBER \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --add-assignee @me
 
 # Assign to someone else
 gh issue edit NUMBER \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --add-assignee username
 ```
 
@@ -181,13 +185,15 @@ gh issue edit NUMBER \
 ### Start Work
 
 1. **Assign issue to yourself**
+
    ```bash
-   gh issue edit NUMBER --repo darrenhinde/OpenAgentsControl --add-assignee @me
+   gh issue edit NUMBER --repo topwebmaster/OpenAgentsControl --add-assignee @me
    ```
 
 2. **Move to "In Progress"** (via web UI)
 
 3. **Create branch** (optional)
+
    ```bash
    git checkout -b feature/issue-NUMBER-description
    ```
@@ -202,16 +208,17 @@ gh issue edit NUMBER \
 ```bash
 # Add comment to issue
 gh issue comment NUMBER \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --body "Progress update: Completed X, working on Y"
 ```
 
 ### Complete Work
 
 1. **Create PR**
+
    ```bash
    gh pr create \
-     --repo darrenhinde/OpenAgentsControl \
+     --repo topwebmaster/OpenAgentsControl \
      --title "Fix #NUMBER: Description" \
      --body "Closes #NUMBER\n\nChanges:\n- Change 1\n- Change 2"
    ```
@@ -227,6 +234,7 @@ gh issue comment NUMBER \
 ### Request Types
 
 **User Feature Request**
+
 1. Create issue with `feature` label
 2. Add to project board
 3. Prioritize based on impact
@@ -234,6 +242,7 @@ gh issue comment NUMBER \
 5. Assign to appropriate person/team
 
 **Bug Report**
+
 1. Create issue with `bug` label
 2. Add reproduction steps
 3. Prioritize based on severity
@@ -241,6 +250,7 @@ gh issue comment NUMBER \
 5. Link to related issues if applicable
 
 **Improvement Suggestion**
+
 1. Create issue with `enhancement` label
 2. Discuss approach in comments
 3. Get consensus before implementation
@@ -254,14 +264,14 @@ For complex features, create parent issue and subtasks:
 ```bash
 # Parent issue
 gh issue create \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --title "[EPIC] Plugin System" \
   --label "feature,framework,priority-high" \
   --body "Parent issue for plugin system work"
 
 # Subtask issues
 gh issue create \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --title "Plugin manifest system" \
   --label "feature" \
   --body "Part of #PARENT_NUMBER\n\nImplement plugin.json manifest"
@@ -275,22 +285,27 @@ gh issue create \
 
 ```markdown
 ## Overview
+
 Brief description of the feature
 
 ## Goals
+
 - Goal 1
 - Goal 2
 - Goal 3
 
 ## Key Features
+
 - Feature 1
 - Feature 2
 - Feature 3
 
 ## Related Issues
+
 - #123 (related issue)
 
 ## Success Criteria
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
@@ -300,25 +315,31 @@ Brief description of the feature
 
 ```markdown
 ## Description
+
 Brief description of the bug
 
 ## Steps to Reproduce
+
 1. Step 1
 2. Step 2
 3. Step 3
 
 ## Expected Behavior
+
 What should happen
 
 ## Actual Behavior
+
 What actually happens
 
 ## Environment
+
 - OS: macOS/Linux/Windows
 - Version: 0.5.2
 - Node: v20.x
 
 ## Additional Context
+
 Any other relevant information
 ```
 
@@ -326,20 +347,25 @@ Any other relevant information
 
 ```markdown
 ## Current State
+
 Description of current implementation
 
 ## Proposed Improvement
+
 What should be improved and why
 
 ## Impact
+
 - Performance improvement
 - Developer experience
 - User experience
 
 ## Implementation Approach
+
 High-level approach to implementation
 
 ## Success Criteria
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 ```
@@ -351,6 +377,7 @@ High-level approach to implementation
 ### Auto-Close Issues
 
 Use keywords in PR descriptions:
+
 - `Closes #123`
 - `Fixes #123`
 - `Resolves #123`
@@ -384,7 +411,7 @@ git commit -m "fix: resolve permission error (closes #140)"
 ✅ **Detailed descriptions** - Include context and goals  
 ✅ **Proper labels** - Use consistent labeling  
 ✅ **Success criteria** - Define what "done" means  
-✅ **Link related issues** - Show dependencies  
+✅ **Link related issues** - Show dependencies
 
 ### Issue Management
 
@@ -392,14 +419,14 @@ git commit -m "fix: resolve permission error (closes #140)"
 ✅ **Keep updated** - Add comments on progress  
 ✅ **Close stale issues** - Clean up old/irrelevant issues  
 ✅ **Use milestones** - Group related issues  
-✅ **Assign owners** - Clear responsibility  
+✅ **Assign owners** - Clear responsibility
 
 ### Project Board
 
 ✅ **Update status** - Keep board current  
 ✅ **Limit WIP** - Don't overload "In Progress"  
 ✅ **Review regularly** - Weekly board review  
-✅ **Archive completed** - Keep board clean  
+✅ **Archive completed** - Keep board clean
 
 ---
 

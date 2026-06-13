@@ -15,10 +15,11 @@ An **interactive AI system generator** that creates complete `.opencode` archite
 
 ```bash
 # Install Advanced profile (includes system builder)
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s advanced
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/install.sh | bash -s advanced
 ```
 
 **What you get:**
+
 - ✅ All development tools (19 components)
 - ✅ Business tools (5 components)
 - ✅ System builder (7 components)
@@ -33,7 +34,7 @@ Already have `developer` or `full` profile? Add system builder:
 
 ```bash
 # Run advanced profile
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s advanced
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/install.sh | bash -s advanced
 
 # When prompted about collisions:
 # Choose: 1) Skip existing
@@ -46,6 +47,7 @@ curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/
 ## 🚀 Usage
 
 ### Step 1: Run the Command
+
 ```bash
 /build-context-system
 ```
@@ -53,26 +55,31 @@ curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/
 ### Step 2: Answer Interview Questions
 
 **Phase 1: Domain & Purpose**
+
 - What's your domain? (e-commerce, data engineering, etc.)
 - What's the purpose? (automate tasks, coordinate workflows, etc.)
 - Who are the users? (developers, business users, etc.)
 
 **Phase 2: Use Cases**
+
 - What are your top 3-5 use cases?
 - What's the complexity? (simple/moderate/complex)
 - Any dependencies between tasks?
 
 **Phase 3: Complexity & Scale**
+
 - How many specialized agents needed?
 - What types of knowledge? (domain/process/standards/templates)
 - State management needs?
 
 **Phase 4: Integrations**
+
 - External tools/APIs?
 - File operations?
 - Custom commands needed?
 
 **Phase 5: Review & Confirm**
+
 - Review architecture summary
 - Confirm or revise
 - Generate system
@@ -80,6 +87,7 @@ curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/
 ### Step 3: Get Your Custom System
 
 **Generated structure:**
+
 ```
 .opencode/
 ├── agent/
@@ -251,35 +259,41 @@ cat .opencode/agent/ecommerce-orchestrator.md
 ## 🎯 What Gets Generated
 
 ### 1. Main Orchestrator
+
 - Analyzes request complexity
 - Routes to specialized agents
 - Manages context allocation
 - Coordinates workflows
 
 ### 2. Specialized Agents
+
 - Domain-specific expertise
 - Clear triggers and responsibilities
 - Optimized for your use cases
 
 ### 3. Context Files
+
 - **Domain**: Core concepts, terminology, business rules
 - **Processes**: Step-by-step workflows
 - **Standards**: Quality criteria, validation rules
 - **Templates**: Reusable output formats
 
 ### 4. Workflows
+
 - Multi-stage processes
 - Context dependencies mapped
 - Success criteria defined
 - Checkpoints included
 
 ### 5. Custom Commands
+
 - Slash command syntax
 - Clear descriptions
 - Usage examples
 - Expected outputs
 
 ### 6. Documentation
+
 - System overview
 - Architecture guide
 - Testing checklist
@@ -290,6 +304,7 @@ cat .opencode/agent/ecommerce-orchestrator.md
 ## 💡 Use Cases
 
 ### For Developers
+
 ```bash
 /build-context-system
 
@@ -299,6 +314,7 @@ Result: Custom dev workflow system
 ```
 
 ### For Business Users
+
 ```bash
 /build-context-system
 
@@ -308,6 +324,7 @@ Result: Custom support automation system
 ```
 
 ### For Data Teams
+
 ```bash
 /build-context-system
 
@@ -317,6 +334,7 @@ Result: Custom data pipeline system
 ```
 
 ### For Content Teams
+
 ```bash
 /build-context-system
 
@@ -332,6 +350,7 @@ Result: Custom content workflow system
 When you install **advanced** profile, you get:
 
 **System Builder Components:**
+
 1. `system-builder` (agent) - Main orchestrator
 2. `domain-analyzer` (subagent) - Analyzes domains
 3. `agent-generator` (subagent) - Creates agents
@@ -341,6 +360,7 @@ When you install **advanced** profile, you get:
 7. `build-context-system` (command) - Interactive interface
 
 **Plus all development tools:**
+
 - openagent, task-manager, opencoder
 - All core subagents (reviewer, tester, etc.)
 - All development commands
@@ -359,11 +379,13 @@ When you install **advanced** profile, you get:
 ## ✅ Summary
 
 **Installation:**
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s advanced
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/install.sh | bash -s advanced
 ```
 
 **Usage:**
+
 ```bash
 /build-context-system
 ```

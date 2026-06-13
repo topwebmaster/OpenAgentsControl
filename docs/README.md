@@ -28,17 +28,20 @@ Welcome to the OpenAgents Control documentation! This directory contains all doc
 ## 🚀 Quick Links
 
 ### For New Users
+
 - Start with the main [README](../README.md) in the repository root
 - Follow the [Installation Guide](getting-started/installation.md)
 - Use `opencode --agent OpenAgent` to start building
 - Read the [OpenAgent Guide](agents/openagent.md) to understand the workflow
 
 ### For Contributors
+
 - Read the [Contributing Guide](contributing/CONTRIBUTING.md)
 - Review the [Code of Conduct](contributing/CODE_OF_CONDUCT.md)
-- Check out [good first issues](https://github.com/darrenhinde/OpenAgentsControl/labels/good%20first%20issue)
+- Check out [good first issues](https://github.com/topwebmaster/OpenAgentsControl/labels/good%20first%20issue)
 
 ### For Advanced Users
+
 - Study the [Agent System Blueprint](features/agent-system-blueprint.md)
 - Try the [System Builder](features/system-builder/)
 - Create custom agents and commands
@@ -83,13 +86,13 @@ docs/
 → [Contributing Guide](contributing/CONTRIBUTING.md)
 
 **...report a bug or request a feature**
-→ [GitHub Issues](https://github.com/darrenhinde/OpenAgentsControl/issues)
+→ [GitHub Issues](https://github.com/topwebmaster/OpenAgentsControl/issues)
 
 ## 💡 Additional Resources
 
 - **Main README**: [../README.md](../README.md) - Complete overview and quick start
 - **CHANGELOG**: [../CHANGELOG.md](../CHANGELOG.md) - Version history and updates
-- **GitHub Repository**: https://github.com/darrenhinde/OpenAgentsControl
+- **GitHub Repository**: https://github.com/topwebmaster/OpenAgentsControl
 - **OpenCode CLI Docs**: https://opencode.ai/docs
 - **Component Registry**: [../registry.json](../registry.json)
 
@@ -98,6 +101,7 @@ docs/
 **v0.6.0** (January 28, 2026)
 
 Latest updates:
+
 - ExternalScout subagent for fetching live library documentation (18+ libraries)
 - Enhanced ContextScout with multi-model optimization
 - Complete command and agent documentation
@@ -105,9 +109,9 @@ Latest updates:
 
 ## 🤝 Community
 
-- **Issues**: [Report bugs or request features](https://github.com/darrenhinde/OpenAgentsControl/issues)
-- **Discussions**: [Ask questions and share ideas](https://github.com/darrenhinde/OpenAgentsControl/discussions)
-- **Pull Requests**: [Contribute code](https://github.com/darrenhinde/OpenAgentsControl/pulls)
+- **Issues**: [Report bugs or request features](https://github.com/topwebmaster/OpenAgentsControl/issues)
+- **Discussions**: [Ask questions and share ideas](https://github.com/topwebmaster/OpenAgentsControl/discussions)
+- **Pull Requests**: [Contribute code](https://github.com/topwebmaster/OpenAgentsControl/pulls)
 
 ## 📝 License
 
@@ -115,4 +119,4 @@ This project is licensed under the MIT License. See [LICENSE](../LICENSE) for de
 
 ---
 
-**Need help?** Check the [Contributing Guide](contributing/CONTRIBUTING.md) or open an [issue](https://github.com/darrenhinde/OpenAgentsControl/issues).
+**Need help?** Check the [Contributing Guide](contributing/CONTRIBUTING.md) or open an [issue](https://github.com/topwebmaster/OpenAgentsControl/issues).

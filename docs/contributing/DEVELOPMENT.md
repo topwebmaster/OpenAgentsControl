@@ -30,7 +30,7 @@ This guide covers everything you need to know to develop agents, commands, tools
 
 ```bash
 # Clone the repository
-git clone https://github.com/darrenhinde/OpenAgentsControl.git
+git clone https://github.com/topwebmaster/OpenAgentsControl.git
 cd OpenAgentsControl
 
 # Install dependencies for testing framework
@@ -112,7 +112,9 @@ opencode-agents/
 ### Key Directories Explained
 
 #### `.opencode/agent/`
+
 Main agent prompts organized by category. These are the "brains" of the system:
+
 - **core/openagent.md** - Universal orchestrator with plan-first workflow
 - **core/opencoder.md** - Development specialist for direct code execution
 - **meta/system-builder.md** - System architecture generator
@@ -121,23 +123,31 @@ Main agent prompts organized by category. These are the "brains" of the system:
 - **subagents/** - Specialized helpers for specific tasks
 
 #### `.opencode/command/`
+
 Slash commands that users can invoke:
+
 - **openagents/new-agents/** - ⭐ **NEW**: Agent creation system with research-backed principles
 - **prompt-engineering/** - Prompt optimization tools
 
 #### `.opencode/context/`
+
 Context files that agents load on-demand:
+
 - **core/** - Standards, patterns, workflows
 - **project/** - Project-specific context (CLAUDE.md pattern)
 
 #### `.opencode/prompts/`
+
 Prompt library with model-specific variants (category-based structure):
+
 - Allows experimentation without breaking main branch
 - Each variant has test results documented
 - Organized by category matching agent structure (core/, development/, etc.)
 
 #### `evals/`
+
 Comprehensive testing framework:
+
 - **agents/** - Test suites for each agent (8 essential tests)
 - **framework/** - Testing infrastructure
 - **results/** - Test results and reports
@@ -155,6 +165,7 @@ git checkout -b feature/my-new-feature
 ### 2. Make Your Changes
 
 Follow the appropriate guide:
+
 - [Creating New Agents](#creating-new-agents)
 - [Adding Commands](#adding-commands)
 - [Adding Tools](#adding-tools)
@@ -209,6 +220,7 @@ opencode "Create a new agent called 'python-dev' for Python development"
 #### What Gets Created
 
 The system generates:
+
 1. **Minimal agent prompt** (~500 tokens at "right altitude")
 2. **Project context file** (CLAUDE.md pattern)
 3. **8 comprehensive tests** (planning, context, incremental, tools, errors, thinking, compaction, completion)
@@ -224,6 +236,7 @@ The agent creation system follows these proven patterns:
 **Why**: Code changes are deeply dependent. Sub-agents can't coordinate edits to the same file.
 
 **Application**:
+
 - Use ONE lead agent with tool-based sub-functions
 - NOT autonomous sub-agents for coding
 - Multi-agent only for truly independent tasks (static analysis, test execution, code search)
@@ -238,6 +251,7 @@ The agent creation system follows these proven patterns:
 | "Write good code" | Clear heuristics + examples | 50-line prompt with edge cases |
 
 **Application**:
+
 - Clear heuristics, not exhaustive rules
 - Examples > edge case lists
 - Show ONE canonical example, not 20 scenarios
@@ -247,6 +261,7 @@ The agent creation system follows these proven patterns:
 **Why**: Prevents "drowning in irrelevant information"
 
 **Application**:
+
 - Tools load context on demand (not pre-loaded)
 - CLAUDE.md pattern for project context
 - File metadata guides behavior
@@ -256,6 +271,7 @@ The agent creation system follows these proven patterns:
 **Why**: "Tool ambiguity is one of the biggest failure modes"
 
 **Application**:
+
 ```markdown
 <tool name="read_file">
   <purpose>Load specific file for analysis or modification</purpose>
@@ -269,6 +285,7 @@ The agent creation system follows these proven patterns:
 **Why**: Improved instruction-following and reasoning efficiency
 
 **Application**:
+
 - Trigger thinking before complex tasks
 - "Think hard about how to approach this problem..."
 - Phrases mapped to thinking budget (think, think hard, think harder)
@@ -278,6 +295,7 @@ The agent creation system follows these proven patterns:
 **Why**: Maintain context efficiency over long-horizon tasks
 
 **Application**:
+
 - Agent writes notes to persistent memory
 - Summarizes when context fills
 - Preserves: architectural decisions, unresolved bugs, implementation details
@@ -288,6 +306,7 @@ The agent creation system follows these proven patterns:
 **Why**: "Parallel tool calling cut research time by up to 90%"
 
 **Application**:
+
 - Can do in parallel: Run linter, execute tests, check type errors
 - NOT in parallel: Apply fix, then test (sequential)
 
@@ -296,6 +315,7 @@ The agent creation system follows these proven patterns:
 **Why**: "Token usage explains 80% of performance variance"
 
 **Measure**:
+
 - ✅ Does it solve the task?
 - ✅ Token usage reasonable?
 - ✅ Tool calls appropriate?
@@ -377,21 +397,26 @@ Always include:
 # My Agent Context
 
 ## Key Commands
+
 - command 1: what it does
 - command 2: what it does
 
 ## File Structure
+
 - path pattern: what goes here
 
 ## Code Style
+
 - style rule 1
 - style rule 2
 
 ## Workflow Rules
+
 - workflow rule 1
 - workflow rule 2
 
 ## Before Committing
+
 1. check 1
 2. check 2
 ```
@@ -399,11 +424,13 @@ Always include:
 **3. Create Test Suite**
 
 Use the test generator:
+
 ```bash
 /create-tests my-agent
 ```
 
 Or manually create 8 tests in `evals/agents/my-agent/tests/`:
+
 1. `planning/planning-approval-001.yaml`
 2. `context-loading/context-before-code-001.yaml`
 3. `implementation/incremental-001.yaml`
@@ -416,6 +443,7 @@ Or manually create 8 tests in `evals/agents/my-agent/tests/`:
 **4. Register Agent**
 
 The registry auto-updates on merge to main, or manually:
+
 ```bash
 ./scripts/registry/register-component.sh
 ```
@@ -423,6 +451,7 @@ The registry auto-updates on merge to main, or manually:
 #### Templates
 
 Pre-built templates are available in:
+
 ```
 .opencode/command/openagents/new-agents/templates/
 ├── agent-template.md              # Minimal agent template
@@ -482,7 +511,7 @@ Tools are TypeScript utilities that agents can use.
 ```typescript
 /**
  * Tool Name
- * 
+ *
  * Brief description of what this tool does
  */
 
@@ -586,6 +615,7 @@ Use the templates in `.opencode/command/openagents/new-agents/templates/` as sta
 ### Agent Design
 
 ✅ **Do**:
+
 - Keep system prompts minimal (~500 tokens)
 - Use clear heuristics, not exhaustive rules
 - Provide ONE canonical example
@@ -594,6 +624,7 @@ Use the templates in `.opencode/command/openagents/new-agents/templates/` as sta
 - Measure outcomes: Does it solve the task?
 
 ❌ **Don't**:
+
 - Create sub-agents for dependent tasks (code is sequential)
 - Pre-load entire codebase into context
 - Write exhaustive edge case lists in prompts
@@ -604,18 +635,21 @@ Use the templates in `.opencode/command/openagents/new-agents/templates/` as sta
 ### Code Style
 
 #### Markdown
+
 - Use clear, concise language
 - Include examples
 - Add code blocks with syntax highlighting
 - Use proper heading hierarchy
 
 #### TypeScript
+
 - Follow existing code style
 - Add JSDoc comments
 - Use TypeScript types (no `any`)
 - Export functions explicitly
 
 #### Bash Scripts
+
 - Use `set -e` for error handling
 - Add comments for complex logic
 - Use meaningful variable names
@@ -706,6 +740,7 @@ make validate-registry
 **Problem**: Tests fail after making changes
 
 **Solution**:
+
 1. Check test output for specific failures
 2. Run with `--verbose` flag for details
 3. Verify agent follows expected behavior
@@ -716,6 +751,7 @@ make validate-registry
 **Problem**: `make validate-registry` fails
 
 **Solution**:
+
 1. Check `registry.json` syntax
 2. Ensure all referenced files exist
 3. Verify frontmatter in agent files is valid YAML
@@ -726,6 +762,7 @@ make validate-registry
 **Problem**: Agent doesn't load context files
 
 **Solution**:
+
 1. Verify context file exists in `.opencode/context/`
 2. Check agent has `read` tool enabled
 3. Ensure context file path is correct
@@ -736,6 +773,7 @@ make validate-registry
 **Problem**: Custom tool not accessible to agent
 
 **Solution**:
+
 1. Verify tool is in `.opencode/tool/my-tool/index.ts`
 2. Check tool is exported properly
 3. Ensure agent has tool enabled in frontmatter
@@ -746,18 +784,21 @@ make validate-registry
 ## Additional Resources
 
 ### Documentation
+
 - [Contributing Guide](CONTRIBUTING.md) - General contribution guidelines
 - [Agent Creation System](../../.opencode/command/openagents/new-agents/README.md) - Detailed agent creation guide
 - [Research-Backed Prompt Design](../agents/research-backed-prompt-design.md) - Prompt engineering principles
 - [Test Design Guide](../../evals/framework/docs/test-design-guide.md) - Writing effective tests
 
 ### Examples
+
 - [OpenAgent](../../.opencode/agent/core/openagent.md) - Universal orchestrator example
 - [OpenCoder](../../.opencode/agent/core/opencoder.md) - Development specialist example
 - [Subagents](../../.opencode/agent/subagents/) - Specialized subagent examples
 - [Test Suites](../../evals/agents/) - Comprehensive test examples
 
 ### Tools
+
 - [Agent Creation Command](../../.opencode/command/openagents/new-agents/create-agent.md)
 - [Test Generator Command](../../.opencode/command/openagents/new-agents/create-tests.md)
 - [Prompt Optimizer](../../.opencode/command/prompt-engineering/prompt-enhancer.md)

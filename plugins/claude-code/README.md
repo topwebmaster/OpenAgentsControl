@@ -29,7 +29,7 @@ Install directly from the Claude Code marketplace:
 
 ```bash
 # Add the OpenAgents Control marketplace repository
-/plugin marketplace add https://github.com/darrenhinde/OpenAgentsControl
+/plugin marketplace add https://github.com/topwebmaster/OpenAgentsControl
 
 # Install the OAC plugin
 /plugin install oac
@@ -48,7 +48,7 @@ For plugin development or testing:
 
 ```bash
 # Clone the repository
-git clone https://github.com/darrenhinde/OpenAgentsControl.git
+git clone https://github.com/topwebmaster/OpenAgentsControl.git
 cd OpenAgentsControl
 
 # Load plugin locally
@@ -95,11 +95,13 @@ Context files are automatically downloaded during installation via `/install-con
 Skills guide the main agent through specific workflows:
 
 ### using-oac
+
 Main workflow orchestrator implementing the 6-stage process (Analyze → Plan → LoadContext → Execute → Validate → Complete).
 
 **Auto-invoked**: When you start a development task.
 
 ### context-discovery
+
 Guide for discovering and loading relevant context files (coding standards, security patterns, conventions).
 
 **Usage**: `/context-discovery authentication feature`
@@ -107,6 +109,7 @@ Guide for discovering and loading relevant context files (coding standards, secu
 **Invokes**: `context-scout` subagent via `context: fork`
 
 ### external-scout
+
 Guide for fetching external library and framework documentation from Context7 and other sources.
 
 **Usage**: `/external-scout drizzle schemas`
@@ -114,6 +117,7 @@ Guide for fetching external library and framework documentation from Context7 an
 **Invokes**: `external-scout` subagent via `context: fork`
 
 ### task-breakdown
+
 Guide for breaking down complex features into atomic subtasks with dependency tracking.
 
 **Usage**: `/task-breakdown user authentication system`
@@ -121,6 +125,7 @@ Guide for breaking down complex features into atomic subtasks with dependency tr
 **Invokes**: `task-manager` subagent via `context: fork`
 
 ### code-execution
+
 Guide for executing coding tasks with full context awareness and self-review.
 
 **Usage**: `/code-execution implement JWT service`
@@ -128,6 +133,7 @@ Guide for executing coding tasks with full context awareness and self-review.
 **Invokes**: `coder-agent` subagent via `context: fork`
 
 ### test-generation
+
 Guide for generating comprehensive tests using TDD principles.
 
 **Usage**: `/test-generation authentication service`
@@ -135,6 +141,7 @@ Guide for generating comprehensive tests using TDD principles.
 **Invokes**: `test-engineer` subagent via `context: fork`
 
 ### code-review
+
 Guide for performing thorough code reviews with security and quality analysis.
 
 **Usage**: `/code-review src/auth/`
@@ -142,6 +149,7 @@ Guide for performing thorough code reviews with security and quality analysis.
 **Invokes**: `code-reviewer` subagent via `context: fork`
 
 ### parallel-execution
+
 Execute multiple independent tasks in parallel to dramatically reduce implementation time for multi-component features.
 
 **Usage**: Automatically used when task-manager marks tasks with `parallel: true`
@@ -153,36 +161,42 @@ Execute multiple independent tasks in parallel to dramatically reduce implementa
 Subagents execute specialized tasks in isolated contexts:
 
 ### task-manager
+
 Break down complex features into atomic, verifiable subtasks with dependency tracking and JSON-based progress management.
 
 **Tools**: Read, Write, Glob, Grep  
 **Model**: sonnet
 
 ### context-scout
+
 Discover relevant context files, standards, and patterns using navigation-driven discovery.
 
 **Tools**: Read, Glob, Grep  
 **Model**: haiku
 
 ### external-scout
+
 Fetch external library and framework documentation from Context7 API and other sources, with local caching.
 
 **Tools**: Read, Write, Bash  
 **Model**: haiku
 
 ### coder-agent
+
 Execute coding subtasks with full context awareness, self-review, and quality validation.
 
 **Tools**: Read, Write, Edit, Glob, Grep  
 **Model**: sonnet
 
 ### test-engineer
+
 Generate comprehensive tests using TDD principles with coverage analysis and validation.
 
 **Tools**: Read, Write, Edit, Bash, Glob, Grep  
 **Model**: sonnet
 
 ### code-reviewer
+
 Perform thorough code review with security analysis, quality checks, and actionable feedback.
 
 **Tools**: Read, Bash, Glob, Grep  
@@ -193,50 +207,60 @@ Perform thorough code review with security analysis, quality checks, and actiona
 User-invocable commands for setup and status:
 
 ### /install-context
+
 Download context files from the OpenAgents Control GitHub repository.
 
 **Usage**: `/install-context [--core|--all|--category=<name>]`
 
 **Options**:
+
 - `--core` - Download only core context files (standards, workflows, patterns)
 - `--all` - Download all context files including examples and guides
 - `--category=<name>` - Download specific category (e.g., `--category=standards`)
 
 ### /oac:help
+
 Show usage guide for OAC workflow, skills, subagents, and commands.
 
-**Usage**: 
+**Usage**:
+
 - `/oac:help` - Show general help
 - `/oac:help <skill-name>` - Show help for specific skill
 
 ### /oac:status
+
 Show plugin status, installed context version, and available components.
 
 **Usage**: `/oac:status`
 
 **Shows**:
+
 - Plugin version
 - Installed context version
 - Available subagents and skills
 - Context file count
 
 ### /oac:cleanup
+
 Clean up old temporary files from `.tmp` directory.
 
 **Usage**: `/oac:cleanup [--force] [--session-days=N] [--task-days=N] [--external-days=N]`
 
 **Options**:
+
 - `--force` - Skip confirmation and delete immediately
 - `--session-days=N` - Clean sessions older than N days (default: 7)
 - `--task-days=N` - Clean completed tasks older than N days (default: 30)
 - `--external-days=N` - Clean external context older than N days (default: 7)
 
 **Cleans**:
+
 - Old session files from `.tmp/sessions/`
 - Completed task files from `.tmp/tasks/`
 - Cached external documentation from `.tmp/external-context/`
 
 **Example**:
+
 ```bash
 # Clean with defaults
 /oac:cleanup
@@ -252,31 +276,37 @@ Clean up old temporary files from `.tmp` directory.
 OAC implements a structured workflow for every development task:
 
 #### Stage 1: Analyze & Discover
+
 - Understand requirements and scope
 - Invoke `/context-discovery` to find relevant context files
 - Identify project standards, patterns, and conventions
 
 #### Stage 2: Plan & Approve
+
 - Present implementation plan
 - **REQUEST APPROVAL** before proceeding
 - Confirm approach with user
 
 #### Stage 3: LoadContext
+
 - Read all discovered context files
 - Load coding standards, security patterns, naming conventions
 - Pre-load context for execution stage (prevents nested discovery)
 
 #### Stage 4: Execute
+
 - **Simple tasks** (1-3 files): Direct implementation
 - **Complex tasks** (4+ files): Invoke `/task-breakdown` to decompose into subtasks
 - Follow loaded standards and patterns
 
 #### Stage 5: Validate
+
 - Run tests and validation
 - **STOP on failure** - fix before proceeding
 - Verify acceptance criteria met
 
 #### Stage 6: Complete
+
 - Update documentation
 - Summarize changes
 - Return results
@@ -284,11 +314,13 @@ OAC implements a structured workflow for every development task:
 ### Architecture: Skills Invoke Subagents via `context: fork`
 
 **OAC Pattern** (nested - NOT supported in Claude Code):
+
 ```
 Main Agent → TaskManager → CoderAgent → ContextScout
 ```
 
 **Claude Code Pattern** (flat - CORRECT):
+
 ```
 Main Agent → /context-discovery skill → context-scout subagent
 Main Agent → /task-breakdown skill → task-manager subagent
@@ -304,6 +336,7 @@ Main Agent → /code-execution skill → coder-agent subagent
 **How**: Stage 3 loads ALL context upfront, so execution stages (4-6) have everything they need.
 
 **Example**:
+
 ```
 Stage 1: Discover context files → [standards.md, security.md, patterns.md]
 Stage 3: Load all files → Read standards.md, Read security.md, Read patterns.md
@@ -313,6 +346,7 @@ Stage 4: Execute with loaded context → No nested discovery needed
 ### Approval Gates
 
 **Critical checkpoints**:
+
 - **Stage 2 → Stage 3**: User must approve the plan
 - **Stage 5 → Stage 6**: Validation must pass
 
@@ -398,11 +432,13 @@ Context files are downloaded from the main repository via `/install-context`:
 ### Adding New Skills
 
 1. Create skill directory:
+
    ```bash
    mkdir -p plugins/claude-code/skills/my-skill
    ```
 
 2. Create `SKILL.md` with frontmatter:
+
    ```markdown
    ---
    name: my-skill
@@ -410,9 +446,9 @@ Context files are downloaded from the main repository via `/install-context`:
    context: fork
    agent: my-subagent
    ---
-   
+
    # My Skill
-   
+
    Instructions for the main agent...
    ```
 
@@ -425,11 +461,13 @@ Context files are downloaded from the main repository via `/install-context`:
 ### Adding New Subagents
 
 1. Create subagent file:
+
    ```bash
    touch plugins/claude-code/agents/my-subagent.md
    ```
 
 2. Add frontmatter:
+
    ```markdown
    ---
    name: my-subagent
@@ -437,9 +475,9 @@ Context files are downloaded from the main repository via `/install-context`:
    tools: Read, Write, Glob, Grep
    model: sonnet
    ---
-   
+
    # MySubagent
-   
+
    Instructions for the subagent...
    ```
 
@@ -460,19 +498,25 @@ Create `hooks/hooks.json`:
 ```json
 {
   "hooks": {
-    "SessionStart": [{
-      "type": "command",
-      "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
-      "timeout": 5
-    }],
-    "PostToolUse": [{
-      "matcher": "Write|Edit",
-      "hooks": [{
+    "SessionStart": [
+      {
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
-        "timeout": 30
-      }]
-    }]
+        "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+        "timeout": 5
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -490,7 +534,7 @@ Create `hooks/hooks.json`:
 
 ## 🤝 Contributing
 
-Contributions welcome! See the main [OpenAgents Control repository](https://github.com/darrenhinde/OpenAgentsControl) for contribution guidelines.
+Contributions welcome! See the main [OpenAgents Control repository](https://github.com/topwebmaster/OpenAgentsControl) for contribution guidelines.
 
 ## 📄 License
 
@@ -498,12 +542,13 @@ MIT License - see [LICENSE](../LICENSE) for details.
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/darrenhinde/OpenAgentsControl/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/darrenhinde/OpenAgentsControl/discussions)
+- **Issues**: [GitHub Issues](https://github.com/topwebmaster/OpenAgentsControl/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/topwebmaster/OpenAgentsControl/discussions)
 
 ## 🗺️ Roadmap
 
 ### Phase 1: Foundation ✅ COMPLETE
+
 - ✅ Plugin structure
 - ✅ 6 custom subagents (task-manager, context-scout, external-scout, coder-agent, test-engineer, code-reviewer)
 - ✅ 8 workflow skills (using-oac, context-discovery, external-scout, task-breakdown, code-execution, test-generation, code-review, install-context, parallel-execution)
@@ -513,6 +558,7 @@ MIT License - see [LICENSE](../LICENSE) for details.
 - ✅ Flat delegation hierarchy (skills invoke subagents via context: fork)
 
 ### Phase 2: Advanced Features ✅ COMPLETE
+
 - ✅ External library documentation fetching (ExternalScout subagent + skill)
 - ✅ .tmp cleanup automation (/oac:cleanup command)
 - ✅ .oac configuration file support (context-manager skill)
@@ -521,6 +567,7 @@ MIT License - see [LICENSE](../LICENSE) for details.
 - ⬜ MCP server integration (future)
 
 ### Phase 3: JSON Config System
+
 - ⬜ Auto-generation from JSON config
 - ⬜ Type-safe configuration
 - ⬜ Multi-IDE conversion

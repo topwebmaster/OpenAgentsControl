@@ -21,16 +21,19 @@ bash scripts/tests/test-non-interactive.sh
 Tests the installer's compatibility across different platforms and bash versions.
 
 **Run locally:**
+
 ```bash
 bash scripts/tests/test-compatibility.sh
 ```
 
 **Run remotely:**
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/scripts/tests/test-compatibility.sh | bash
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/scripts/tests/test-compatibility.sh | bash
 ```
 
 **What it tests:**
+
 - ✅ Bash version (3.2+ required)
 - ✅ Required dependencies (curl, jq)
 - ✅ Script syntax validation
@@ -44,6 +47,7 @@ curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/
 - ✅ Network connectivity
 
 **Expected output:**
+
 ```
 ╔════════════════════════════════════════════════════════════════╗
 ║         OpenCode Installer Compatibility Test                 ║
@@ -68,11 +72,13 @@ System Information:
 **Critical test** - validates piped execution (`curl | bash`) scenarios.
 
 **Run locally:**
+
 ```bash
 bash scripts/tests/test-non-interactive.sh
 ```
 
 **What it tests:**
+
 - ✅ Fresh install via pipe (simulates `curl | bash -s profile`)
 - ✅ Collision handling in non-interactive mode
 - ✅ All profiles work non-interactively
@@ -89,11 +95,13 @@ bash scripts/tests/test-non-interactive.sh
 Full installation workflow validation.
 
 **Run locally:**
+
 ```bash
 bash scripts/tests/test-e2e-install.sh
 ```
 
 **What it tests:**
+
 - ✅ Essential profile installs expected files
 - ✅ Developer profile installs expected files
 - ✅ Custom installation directory works
@@ -110,11 +118,13 @@ bash scripts/tests/test-e2e-install.sh
 Tests the installer's file collision detection and handling strategies.
 
 **Run locally:**
+
 ```bash
 bash scripts/tests/test-collision-detection.sh
 ```
 
 **What it tests:**
+
 - ✅ Detection of existing files
 - ✅ Skip existing strategy
 - ✅ Overwrite strategy
@@ -140,6 +150,7 @@ done
 ## Test Requirements
 
 All tests require:
+
 - Bash 3.2 or higher
 - curl (for network tests)
 - jq (for JSON parsing tests)
@@ -159,6 +170,7 @@ When adding new test scripts:
 6. **Documentation:** Update this README
 
 **Example test structure:**
+
 ```bash
 #!/usr/bin/env bash
 
@@ -188,6 +200,7 @@ echo "All tests passed!"
 These tests can be integrated into CI/CD pipelines:
 
 **GitHub Actions example:**
+
 ```yaml
 name: Test Installer
 on: [push, pull_request]
@@ -215,7 +228,9 @@ jobs:
 ## Troubleshooting Tests
 
 ### Test fails with "command not found"
+
 Install missing dependencies:
+
 ```bash
 # macOS
 brew install curl jq
@@ -228,13 +243,17 @@ sudo dnf install curl jq
 ```
 
 ### Network tests fail
+
 Check internet connectivity:
+
 ```bash
 curl -I https://github.com
 ```
 
 ### Permission errors
+
 Make sure scripts are executable:
+
 ```bash
 chmod +x scripts/tests/*.sh
 ```
@@ -244,6 +263,7 @@ chmod +x scripts/tests/*.sh
 ## Test Coverage
 
 Current test coverage:
+
 - ✅ Platform compatibility (macOS, Linux, Windows)
 - ✅ Bash version compatibility (3.2+)
 - ✅ Argument parsing
@@ -256,6 +276,7 @@ Current test coverage:
 - ✅ Error handling scenarios
 
 Future test additions:
+
 - [ ] Component dependency resolution
 - [ ] Rollback functionality
 - [ ] Windows (Git Bash) specific tests
@@ -265,6 +286,7 @@ Future test additions:
 ## Contributing
 
 When contributing tests:
+
 1. Ensure tests are idempotent (can run multiple times)
 2. Clean up temporary files/directories
 3. Provide clear success/failure messages

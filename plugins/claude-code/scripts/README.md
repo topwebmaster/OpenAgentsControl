@@ -76,6 +76,7 @@ bun run plugins/claude-code/scripts/test-install.ts
 ### Registry Fetching
 
 The `registry-fetcher` utility:
+
 1. Fetches registry.json from GitHub raw URL
 2. Validates structure with Zod schema
 3. Filters components by profile or custom IDs
@@ -84,6 +85,7 @@ The `registry-fetcher` utility:
 ### Git Sparse Checkout
 
 The `git-sparse` utility:
+
 1. Clones repository with `--filter=blob:none --sparse`
 2. Configures sparse-checkout for specific paths
 3. Copies files to target directory
@@ -92,6 +94,7 @@ The `git-sparse` utility:
 ### Manifest Creation
 
 The installer creates a `.context-manifest.json` file tracking:
+
 - Installation profile
 - Source repository and commit SHA
 - Downloaded components with local paths
@@ -114,7 +117,7 @@ Context Installer
 ========================
 
 ℹ Profile: essential
-ℹ Repository: darrenhinde/OpenAgentsControl
+ℹ Repository: topwebmaster/OpenAgentsControl
 ℹ Branch: main
 ℹ Dry run: false
 
@@ -142,6 +145,7 @@ Context Installer
 ## Error Handling
 
 The installer handles:
+
 - Network failures (GitHub unavailable)
 - Invalid registry structure
 - Git command failures
@@ -177,6 +181,7 @@ To add a new profile, update the `Profile` type in `types/registry.ts` and the p
 ## Migration from JavaScript
 
 This TypeScript implementation replaces the original `install-context.js` with:
+
 - Type safety with TypeScript and Zod
 - Better error handling
 - Modular architecture

@@ -9,16 +9,19 @@
 ## Tests Run with Grok
 
 ### Test 1: Approval Before Execution
+
 **File:** `05-approval-before-execution-positive.yaml`  
 **Expected:** Agent writes file after approval  
 **Result:** ❌ FAILED - 0 tool calls, agent did nothing
 
 ### Test 2: Conversational (Read-Only)
+
 **File:** `03-conversational-no-approval.yaml`  
 **Expected:** Agent reads file and responds  
 **Result:** ❌ FAILED - 0 tool calls, agent did nothing
 
 ### Test 3: Smoke Test
+
 **File:** `smoke-test.yaml`  
 **Expected:** Agent writes simple file  
 **Result:** ❌ FAILED - 0 tool calls, agent did nothing
@@ -28,6 +31,7 @@
 ## Pattern Identified
 
 **ALL tests with Grok show:**
+
 - Duration: 5-9 seconds (too fast)
 - Events: 2-6 (very low)
 - Tool calls: 0 (ZERO)
@@ -42,6 +46,7 @@
 **Grok Code Fast is NOT compatible with OpenAgent testing.**
 
 The model either:
+
 1. Doesn't support tool calling
 2. Has broken integration with OpenCode
 3. Is not designed for agentic workflows
@@ -57,19 +62,23 @@ Since Grok doesn't work, here's the minimal test suite for Claude:
 ### Critical Rules (8 tests)
 
 **Approval Gate (2 tests):**
+
 1. `05-approval-before-execution-positive.yaml` - Approval workflow
 2. `02-missing-approval-negative.yaml` - Missing approval detection
 
 **Context Loading (3 tests):**
+
 1. `01-code-task.yaml` - Code task loads code.md
-2. `02-docs-task.yaml` - Docs task loads docs.md  
+2. `02-docs-task.yaml` - Docs task loads docs.md
 3. `11-wrong-context-file-negative.yaml` - Wrong context detection
 
 **Stop on Failure (2 tests):**
+
 1. `02-stop-and-report-positive.yaml` - Stop and report
 2. `03-auto-fix-negative.yaml` - Auto-fix detection
 
 **Report First (1 test):**
+
 1. `01-correct-workflow-positive.yaml` - Report→Propose→Approve→Fix
 
 ---
@@ -77,11 +86,13 @@ Since Grok doesn't work, here's the minimal test suite for Claude:
 ## Cost Analysis
 
 **Core Suite (8 tests):**
+
 - Estimated tokens: ~56,000 tokens
 - Cost with Claude: ~$0.35
 - Time: ~3-4 minutes
 
 **Full Suite (49 tests):**
+
 - Estimated tokens: ~343,000 tokens
 - Cost with Claude: ~$2.21
 - Time: ~20 minutes
@@ -93,8 +104,9 @@ Since Grok doesn't work, here's the minimal test suite for Claude:
 ## Next Steps
 
 ### Run Core Test Suite with Claude
+
 ```bash
-cd /Users/darrenhinde/Documents/GitHub/opencode-agents/evals/framework
+cd /Users/topwebmaster/Documents/GitHub/opencode-agents/evals/framework
 
 # Test 1: Approval before execution
 npm run eval:sdk -- --agent=openagent \

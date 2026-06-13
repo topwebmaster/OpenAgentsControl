@@ -51,9 +51,9 @@ else
 fi
 
 BRANCH="${OPENCODE_BRANCH:-main}"
-DEFAULT_REPO_URL="https://github.com/darrenhinde/OpenAgentsControl"
+DEFAULT_REPO_URL="https://github.com/topwebmaster/OpenAgentsControl"
 REPO_URL="$DEFAULT_REPO_URL"
-RAW_URL="https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/${BRANCH}"
+RAW_URL="https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/${BRANCH}"
 LOCAL_SOURCE_ROOT=""
 
 # CLI argument for custom install dir (overrides env var)
@@ -143,7 +143,7 @@ build_raw_url() {
     if [[ "$repo_url" =~ ^https://github\.com/([^/]+)/([^/]+)$ ]]; then
         echo "https://raw.githubusercontent.com/${BASH_REMATCH[1]}/${BASH_REMATCH[2]}/${BRANCH}"
     else
-        echo "https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/${BRANCH}"
+        echo "https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/${BRANCH}"
     fi
 }
 

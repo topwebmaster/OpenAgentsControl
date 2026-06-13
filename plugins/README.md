@@ -23,9 +23,10 @@ plugins/
 **Plugin Name**: `oac`
 
 **Installation**:
+
 ```bash
 # From GitHub marketplace
-/plugin marketplace add darrenhinde/OpenAgentsControl
+/plugin marketplace add topwebmaster/OpenAgentsControl
 /plugin install oac
 
 # Local testing
@@ -33,6 +34,7 @@ claude --plugin-dir ./plugins/claude-code
 ```
 
 **Features**:
+
 - Intelligent code review with security analysis
 - TDD test generation
 - Automated documentation

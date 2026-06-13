@@ -32,6 +32,7 @@ claude
 ```
 
 Claude will automatically:
+
 - Load the `openagents-control-standards` Skill
 - Use `context-scout` to find relevant context in `.opencode/context/`
 - Apply OpenAgents Control standards to any task
@@ -53,26 +54,29 @@ If Claude doesn't auto-load the local adapter when run in this repository:
    This will activate the context loading workflow.
 
 **Known Issue**: Skills auto-trigger based on Claude's heuristic. If it doesn't trigger:
+
 - The `context-scout` subagent will still be available
 - You can call it manually: `task(subagent_type="context-scout", ...)`
 - Claude will still follow OpenAgents Control patterns if you reference `.opencode/context/` files in your prompt
 
 </details>
 
-
 ### Install Claude CLI (if needed)
 
 **macOS**:
+
 ```bash
 brew install claude
 ```
 
 **npm**:
+
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
 **Verify**:
+
 ```bash
 claude --version
 ```
@@ -82,12 +86,13 @@ claude --version
 ### One-Line Install (Recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/integrations/claude-code/bootstrap-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/integrations/claude-code/bootstrap-install.sh | bash
 ```
 
 **Prereqs**: `git`, `bash`
 
 **Verify Claude Code**:
+
 ```bash
 claude --version
 ```
@@ -115,11 +120,13 @@ This copies the plugin to `~/.claude/plugins/openagents-control-bridge/`.
 ### Step 3: Use with Claude Code
 
 **With plugin (recommended for distributed use)**:
+
 ```bash
 claude --plugin-dir ~/.claude/plugins/openagents-control-bridge
 ```
 
 **Without plugin (manual mode)**:
+
 ```bash
 # Set environment variable to load context files
 export OPENAGENTS_CONTROL_CONTEXT_PATH=.opencode/context
@@ -150,13 +157,13 @@ claude
 
 The converter maps OpenAgents Control frontmatter to Claude format:
 
-| OpenAgents Control Field | Claude Field |
-|------------------|--------------|
-| `id` | `name` |
-| `description` | `description` |
-| `tools` / `permissions` | `tools` |
-| `model` | `model` |
-| `mode: subagent` | `permissionMode: plan` |
+| OpenAgents Control Field | Claude Field           |
+| ------------------------ | ---------------------- |
+| `id`                     | `name`                 |
+| `description`            | `description`          |
+| `tools` / `permissions`  | `tools`                |
+| `model`                  | `model`                |
+| `mode: subagent`         | `permissionMode: plan` |
 
 ## Adding New Agents
 
@@ -188,11 +195,11 @@ Add to `.opencode/agent/{category}/{agent}.md`. The local adapter in `.claude/` 
 
 ## CLI Reference
 
-| Command | Description |
-|---------|-------------|
-| `claude` | Start interactive session |
-| `claude "request"` | One-shot request |
-| `claude --plugin-dir ~/.claude/plugins/openagents-control-bridge` | Load with plugin |
-| `claude --print-plugins` | Show loaded plugins |
-| `claude --debug` | Debug mode |
-| `claude --version` | Show version |
+| Command                                                           | Description               |
+| ----------------------------------------------------------------- | ------------------------- |
+| `claude`                                                          | Start interactive session |
+| `claude "request"`                                                | One-shot request          |
+| `claude --plugin-dir ~/.claude/plugins/openagents-control-bridge` | Load with plugin          |
+| `claude --print-plugins`                                          | Show loaded plugins       |
+| `claude --debug`                                                  | Debug mode                |
+| `claude --version`                                                | Show version              |

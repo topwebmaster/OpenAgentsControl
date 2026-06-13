@@ -9,10 +9,11 @@
 The system builder is included in the **Advanced** profile:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s advanced
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/install.sh | bash -s advanced
 ```
 
 **What you get:**
+
 - ✅ All development tools (19 components)
 - ✅ Business tools (5 components)
 - ✅ System builder (7 components)
@@ -25,7 +26,7 @@ Already have `core`, `developer`, or `full` profile? Add system builder:
 
 ```bash
 # Run advanced profile
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s advanced
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/install.sh | bash -s advanced
 
 # When prompted about collisions:
 # Choose: 1) Skip existing
@@ -54,24 +55,27 @@ Transforms your requirements into a complete AI system with:
 ✅ **Organized Context Files** - Modular knowledge base  
 ✅ **Workflow Definitions** - Reusable process patterns  
 ✅ **Custom Slash Commands** - User-friendly interfaces  
-✅ **Complete Documentation** - README, architecture, testing guides  
+✅ **Complete Documentation** - README, architecture, testing guides
 
 ---
 
 ## Key Features
 
 ### 🛡️ Safe & Smart
+
 - **Detects existing projects** - Won't overwrite your work
 - **Merge options** - Extend, separate, or replace (with backup)
 - **Conflict detection** - Intelligent file merging
 
 ### 🎯 Adaptive
+
 - **Works for dev tasks** - Code, testing, builds, deployment
 - **Works for business tasks** - Content, reports, processes
 - **Works for hybrid tasks** - Data engineering, product management
 - **Adapts questions** - Based on your domain type
 
 ### 🔗 Integrates
+
 - **Detects existing agents** - Reuses what you have
 - **Recommends integration** - Leverages existing capabilities
 - **Creates unified system** - Cohesive orchestration
@@ -81,6 +85,7 @@ Transforms your requirements into a complete AI system with:
 ## How It Works
 
 ### 1. Project Detection
+
 ```
 Scans for existing .opencode/
 ↓
@@ -94,6 +99,7 @@ If not found: Fresh build
 ```
 
 ### 2. Domain Type Detection
+
 ```
 Analyzes your domain
 ↓
@@ -106,6 +112,7 @@ Adapts questions to your domain type
 ```
 
 ### 3. Intelligent Interview
+
 ```
 Phase 1: Domain & Purpose
 Phase 2: Use Cases & Workflows
@@ -115,6 +122,7 @@ Phase 5: Review & Confirmation
 ```
 
 ### 4. System Generation
+
 ```
 Routes to specialized subagents:
 - domain-analyzer: Identifies concepts and agents
@@ -139,11 +147,13 @@ Integrates with existing agents
 **Domain Type**: Development
 
 **Questions Adapted**:
+
 - "What programming languages?" → Python, JavaScript
 - "What development tools?" → Git, GitHub Actions
 - "What code quality standards?" → ESLint, tests
 
 **Generated**:
+
 - code-review-orchestrator
 - static-analyzer (subagent)
 - security-scanner (subagent)
@@ -161,11 +171,13 @@ Integrates with existing agents
 **Domain Type**: Business
 
 **Questions Adapted**:
+
 - "What business processes?" → Order fulfillment, refunds
 - "What reports needed?" → Sales, inventory
 - "What customer touchpoints?" → Email, notifications
 
 **Generated**:
+
 - ecommerce-orchestrator
 - order-processor (subagent)
 - inventory-checker (subagent)
@@ -183,6 +195,7 @@ Integrates with existing agents
 **Command**: `/build-context-system "Add documentation generation"`
 
 **Flow**:
+
 1. Detects existing project
 2. User chooses: "Extend existing"
 3. Domain type: Hybrid (dev + content)
@@ -237,6 +250,7 @@ All generated systems implement proven patterns:
 The system detects and integrates with existing agents:
 
 **Development Agents**:
+
 - `openagent` - Universal agent for questions and tasks
 - `opencoder` - Code analysis, file operations
 - `build-agent` - Build validation, type checking
@@ -246,11 +260,13 @@ The system detects and integrates with existing agents:
 - `documentation` - Documentation authoring
 
 **Business Agents**:
+
 - `task-manager` - Task tracking, project management
 - `workflow-orchestrator` - Workflow coordination
 - `image-specialist` - Image generation/editing
 
 **Integration Strategy**:
+
 - Reuses existing agents where applicable
 - Creates new agents only for gaps
 - Builds unified orchestrator routing to both
@@ -261,6 +277,7 @@ The system detects and integrates with existing agents:
 ## Merge Strategies
 
 ### Extend Existing (Recommended)
+
 - ✅ Keeps all existing files
 - ✅ Adds new capabilities
 - ✅ Creates unified orchestrator
@@ -268,12 +285,14 @@ The system detects and integrates with existing agents:
 - Best for: Adding features to active projects
 
 ### Create Separate
+
 - ✅ Keeps existing system intact
 - ✅ Creates new system in separate namespace
 - ✅ Both systems coexist
 - Best for: Multi-domain projects
 
 ### Replace Existing
+
 - ⚠️ Backs up to `.opencode.backup.{timestamp}/`
 - ⚠️ Creates fresh system
 - ⚠️ Use with caution
@@ -286,6 +305,7 @@ The system detects and integrates with existing agents:
 Generated systems score 8+/10 on:
 
 **Agent Quality**:
+
 - ✅ Optimal component ordering (context→role→task→instructions)
 - ✅ Hierarchical context structure
 - ✅ @ symbol routing with context levels
@@ -293,6 +313,7 @@ Generated systems score 8+/10 on:
 - ✅ Validation gates (pre_flight and post_flight)
 
 **Context Organization**:
+
 - ✅ Files are 50-200 lines (modular)
 - ✅ Clear separation of concerns
 - ✅ No duplication across files
@@ -300,6 +321,7 @@ Generated systems score 8+/10 on:
 - ✅ Concrete examples included
 
 **Workflow Completeness**:
+
 - ✅ Clear stages with prerequisites
 - ✅ Context dependencies mapped
 - ✅ Success criteria defined
@@ -307,6 +329,7 @@ Generated systems score 8+/10 on:
 - ✅ Error handling specified
 
 **Documentation Clarity**:
+
 - ✅ Comprehensive README
 - ✅ Clear architecture guide
 - ✅ Actionable testing checklist
@@ -318,12 +341,15 @@ Generated systems score 8+/10 on:
 ## System Components
 
 ### Command
+
 - `.opencode/command/build-context-system.md` - Entry point
 
 ### Main Orchestrator
+
 - `.opencode/agent/system-builder.md` - Coordinates generation
 
 ### Specialized Subagents
+
 - `.opencode/agent/subagents/domain-analyzer.md` - Domain analysis
 - `.opencode/agent/subagents/agent-generator.md` - Agent generation
 - `.opencode/agent/subagents/context-organizer.md` - Context organization
@@ -331,9 +357,11 @@ Generated systems score 8+/10 on:
 - `.opencode/agent/subagents/command-creator.md` - Command creation
 
 ### Templates
+
 - `.opencode/context/system-builder-templates/` - Reusable patterns
 
 ### Documentation
+
 - `.opencode/CONTEXT-SYSTEM-BUILDER.md` - Detailed documentation
 - `.opencode/SYSTEM-BUILDER-README.md` - This file
 
@@ -362,11 +390,13 @@ Generated systems score 8+/10 on:
 ### Common Workflows
 
 **Fresh Build**:
+
 ```bash
 /build-context-system "Your domain name"
 ```
 
 **Extend Existing**:
+
 ```bash
 /build-context-system "Add new capability"
 # → Detects existing
@@ -375,6 +405,7 @@ Generated systems score 8+/10 on:
 ```
 
 **Multi-Domain**:
+
 ```bash
 /build-context-system "Client B project"
 # → Detects existing Client A
@@ -387,6 +418,7 @@ Generated systems score 8+/10 on:
 ## Testing Your Generated System
 
 ### Component Testing
+
 - [ ] Test orchestrator with simple request
 - [ ] Test each subagent independently
 - [ ] Verify context files load correctly
@@ -396,6 +428,7 @@ Generated systems score 8+/10 on:
 - [ ] Test edge cases
 
 ### Integration Testing
+
 - [ ] Multi-agent coordination
 - [ ] Context loading verification
 - [ ] Routing logic validation
@@ -425,6 +458,7 @@ Generated systems score 8+/10 on:
 ### Incremental Enhancement
 
 After initial generation, you can:
+
 - Add new agents manually
 - Extend existing workflows
 - Create additional commands
@@ -476,6 +510,7 @@ Study generated orchestrators to understand integration patterns for your own ag
 ## Support
 
 For questions or issues:
+
 1. Review generated documentation (README.md, ARCHITECTURE.md)
 2. Check TESTING.md for testing guidance
 3. Review QUICK-START.md for usage examples

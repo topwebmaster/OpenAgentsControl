@@ -1,6 +1,6 @@
 # OpenAgents Control Roadmap
 
-> **Interactive Board:** [GitHub Project - OpenAgents Control Roadmap & Tasks](https://github.com/users/darrenhinde/projects/2)
+> **Interactive Board:** [GitHub Project - OpenAgents Control Roadmap & Tasks](https://github.com/users/topwebmaster/projects/2)
 
 This roadmap tracks the evolution of OpenAgents Control - an AI agent framework for plan-first development workflows with approval-based execution.
 
@@ -42,29 +42,34 @@ This roadmap tracks the evolution of OpenAgents Control - an AI agent framework 
 ## 📝 How to Use This Roadmap
 
 ### View the Interactive Board
-Visit the [GitHub Project](https://github.com/users/darrenhinde/projects/2) to see:
+
+Visit the [GitHub Project](https://github.com/users/topwebmaster/projects/2) to see:
+
 - Current status of all items
 - Priority levels
 - Detailed descriptions
 - Progress tracking
 
 ### Suggest Ideas
+
 Create an issue with the `idea` label:
+
 ```bash
 gh issue create \
-  --repo darrenhinde/OpenAgentsControl \
+  --repo topwebmaster/OpenAgentsControl \
   --title "Your idea title" \
   --body "Description of your idea..." \
   --label "idea"
 ```
 
 ### Track Progress
+
 ```bash
 # List all ideas
-gh issue list --repo darrenhinde/OpenAgentsControl --label idea
+gh issue list --repo topwebmaster/OpenAgentsControl --label idea
 
 # View specific issue
-gh issue view 123 --repo darrenhinde/OpenAgentsControl
+gh issue view 123 --repo topwebmaster/OpenAgentsControl
 ```
 
 ---
@@ -82,4 +87,3 @@ gh issue view 123 --repo darrenhinde/OpenAgentsControl
 ---
 
 **Last Updated:** December 4, 2025
-

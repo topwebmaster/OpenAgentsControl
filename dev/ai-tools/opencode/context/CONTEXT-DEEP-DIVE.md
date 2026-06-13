@@ -23,11 +23,13 @@ Every time you send a message to OpenCode, it builds a **context** (like a brief
 ### 💰 The Cost Story
 
 **Without Caching (Ollama, most models):**
+
 - Every request: 9,322 tokens × full price
 - Or FREE (local models like Ollama)
 - 🚨 Problem: Uses 50-100% of small context windows!
 
 **With Caching (Claude/Anthropic only):**
+
 - First request: 9,322 tokens × full price = $0.028
 - Next requests: 9,000 cached (10% price) + 322 new = $0.004
 - **Savings: 85% cheaper!** Cache lasts 5 minutes
@@ -46,11 +48,12 @@ Every time you send a message to OpenCode, it builds a **context** (like a brief
 ```typescript
 // From: packages/opencode/src/provider/transform.ts:23-63
 
-const system = msgs.filter((msg) => msg.role === "system").slice(0, 2)
-const final = msgs.filter((msg) => msg.role !== "system").slice(-2)
+const system = msgs.filter((msg) => msg.role === "system").slice(0, 2);
+const final = msgs.filter((msg) => msg.role !== "system").slice(-2);
 ```
 
 **Translation:** OpenCode marks these messages as cacheable:
+
 1. **First 2 system messages** (base prompt, environment+tools)
 2. **Last 2 conversation messages** (your previous question + AI's answer)
 
@@ -63,7 +66,7 @@ Request 1: "Fix auth bug"
 ├─ [User] "Fix auth bug"                    [NOT CACHED]
 └─ [Assistant] "Here's the fix..."          [NOT CACHED]
 
-Request 2: "Add tests"  
+Request 2: "Add tests"
 ├─ [System 1] Header + Base Prompt          [CACHE HIT! 💰]
 ├─ [System 2] Environment + Custom + Tools  [CACHE HIT! 💰]
 ├─ [User] "Fix auth bug"                    [CACHEABLE ✅]
@@ -86,13 +89,14 @@ Request 3: "Explain the tests"
 **Caching happens on the provider's servers (not locally):**
 
 1. **Anthropic receives your request** with special markers:
+
    ```json
    {
      "messages": [
        {
          "role": "system",
          "content": "You are Claude...",
-         "cache_control": { "type": "ephemeral" }  // ← Cache marker
+         "cache_control": { "type": "ephemeral" } // ← Cache marker
        }
      ]
    }
@@ -113,8 +117,8 @@ Request 3: "Explain the tests"
      "tokens": {
        "input": 1200,
        "cache": {
-         "read": 8500,    // ← Anthropic says "I already have this"
-         "write": 0       // ← New content added to cache
+         "read": 8500, // ← Anthropic says "I already have this"
+         "write": 0 // ← New content added to cache
        }
      }
    }
@@ -143,26 +147,26 @@ Request 3: "Explain the tests"
 ```typescript
 export function message(msgs: ModelMessage[], providerID: string, modelID: string) {
   if (providerID === "anthropic" || modelID.includes("anthropic") || modelID.includes("claude")) {
-    msgs = applyCaching(msgs, providerID)
+    msgs = applyCaching(msgs, providerID);
   }
-  return msgs
+  return msgs;
 }
 ```
 
 **Verified Provider Support:**
 
-| Provider | Models | Caching Support | Cache Format | Notes |
-|----------|--------|-----------------|--------------|-------|
-| **Anthropic** | Claude 3.5 Sonnet<br/>Claude 3.5 Haiku<br/>Claude 3 Opus/Sonnet | ✅ **Yes** | `cacheControl: { type: "ephemeral" }` | Native support, best implementation |
-| **OpenRouter** | When routing to Claude | ✅ **Yes** | `cache_control: { type: "ephemeral" }` | Only if backend is Anthropic |
-| **AWS Bedrock** | Claude on Bedrock | ✅ **Yes** | `cachePoint: { type: "ephemeral" }` | AWS-specific format |
-| **OpenAI** | GPT-4, GPT-4 Turbo<br/>o1, o3, GPT-5 | ⚠️ **Different** | `promptCacheKey: sessionID` | Different system, not as effective |
-| **OpenCode API** | Big Pickle | ✅ **Yes** | Routes through Anthropic | Backend uses Anthropic, so caching works |
-| **Ollama** | All local models | ❌ **No** | N/A | Local models don't support caching |
-| **LM Studio** | All local models | ❌ **No** | N/A | Local server, no cloud cache |
-| **Together AI** | Qwen, Llama, etc. | ❌ **No** | N/A | No caching support |
-| **Google AI** | Gemini 1.5, 2.0 | ❌ **No** | N/A | Not supported by provider |
-| **Azure OpenAI** | GPT-4 on Azure | ⚠️ **Varies** | Depends on Azure config | Check your Azure setup |
+| Provider         | Models                                                          | Caching Support  | Cache Format                           | Notes                                    |
+| ---------------- | --------------------------------------------------------------- | ---------------- | -------------------------------------- | ---------------------------------------- |
+| **Anthropic**    | Claude 3.5 Sonnet<br/>Claude 3.5 Haiku<br/>Claude 3 Opus/Sonnet | ✅ **Yes**       | `cacheControl: { type: "ephemeral" }`  | Native support, best implementation      |
+| **OpenRouter**   | When routing to Claude                                          | ✅ **Yes**       | `cache_control: { type: "ephemeral" }` | Only if backend is Anthropic             |
+| **AWS Bedrock**  | Claude on Bedrock                                               | ✅ **Yes**       | `cachePoint: { type: "ephemeral" }`    | AWS-specific format                      |
+| **OpenAI**       | GPT-4, GPT-4 Turbo<br/>o1, o3, GPT-5                            | ⚠️ **Different** | `promptCacheKey: sessionID`            | Different system, not as effective       |
+| **OpenCode API** | Big Pickle                                                      | ✅ **Yes**       | Routes through Anthropic               | Backend uses Anthropic, so caching works |
+| **Ollama**       | All local models                                                | ❌ **No**        | N/A                                    | Local models don't support caching       |
+| **LM Studio**    | All local models                                                | ❌ **No**        | N/A                                    | Local server, no cloud cache             |
+| **Together AI**  | Qwen, Llama, etc.                                               | ❌ **No**        | N/A                                    | No caching support                       |
+| **Google AI**    | Gemini 1.5, 2.0                                                 | ❌ **No**        | N/A                                    | Not supported by provider                |
+| **Azure OpenAI** | GPT-4 on Azure                                                  | ⚠️ **Varies**    | Depends on Azure config                | Check your Azure setup                   |
 
 ### How to Tell if Caching is Working
 
@@ -218,6 +222,7 @@ Your Setup:
 ```
 
 **That's why you see:**
+
 - `cache.read: 8500` tokens (from Anthropic)
 - Costs are charged (not free like local Ollama)
 - Same caching behavior as Claude
@@ -227,6 +232,7 @@ Your Setup:
 ### Cache Optimization Tips
 
 **For Anthropic/Claude:**
+
 1. ✅ Keep long system prompts (they get cached)
 2. ✅ Enable all tools you might need (cached after first use)
 3. ✅ Long conversations benefit more (2+ messages)
@@ -234,6 +240,7 @@ Your Setup:
 5. ❌ Don't optimize context size (caching makes it cheap)
 
 **For Non-Caching Models:**
+
 1. ✅ Minimize system prompts aggressively
 2. ✅ Disable unused tools
 3. ✅ Remove custom instructions
@@ -246,31 +253,32 @@ Your Setup:
 
 ```typescript
 function applyCaching(msgs: ModelMessage[], providerID: string): ModelMessage[] {
-  const system = msgs.filter((msg) => msg.role === "system").slice(0, 2)
-  const final = msgs.filter((msg) => msg.role !== "system").slice(-2)
+  const system = msgs.filter((msg) => msg.role === "system").slice(0, 2);
+  const final = msgs.filter((msg) => msg.role !== "system").slice(-2);
 
   const providerOptions = {
     anthropic: { cacheControl: { type: "ephemeral" } },
     openrouter: { cache_control: { type: "ephemeral" } },
     bedrock: { cachePoint: { type: "ephemeral" } },
     openaiCompatible: { cache_control: { type: "ephemeral" } },
-  }
+  };
 
   // Apply cache markers to eligible messages
   for (const msg of unique([...system, ...final])) {
     msg.providerOptions = {
       ...msg.providerOptions,
-      ...providerOptions[providerID]
-    }
+      ...providerOptions[providerID],
+    };
   }
-  
-  return msgs
+
+  return msgs;
 }
 ```
 
 **What this does:**
+
 1. Finds first 2 system messages
-2. Finds last 2 conversation messages  
+2. Finds last 2 conversation messages
 3. Adds provider-specific cache markers
 4. Provider sees markers and caches those messages
 
@@ -281,10 +289,10 @@ function applyCaching(msgs: ModelMessage[], providerID: string): ModelMessage[] 
 ```mermaid
 graph TD
     A[You type message] --> B{OpenCode starts building context}
-    
+
     B --> C[1️⃣ Add Header]
     C --> C1[Anthropic: 'You are Claude'<br/>Others: Nothing]
-    
+
     B --> D[2️⃣ Add Base Prompt]
     D --> D1{Which model?}
     D1 -->|Claude| D2[anthropic.txt<br/>1,335 words]
@@ -292,37 +300,37 @@ graph TD
     D1 -->|GPT-5| D4[codex.txt<br/>3,940 words]
     D1 -->|Gemini| D5[gemini.txt<br/>2,235 words]
     D1 -->|Others/Ollama/Big Pickle| D6[qwen.txt<br/>1,596 words]
-    
+
     B --> E[3️⃣ Add Environment]
     E --> E1[Working directory<br/>Project tree<br/>Date & platform]
-    
+
     B --> F[4️⃣ Search for Custom Instructions]
     F --> F1{Find local files?}
     F1 -->|Yes| F2[Load AGENTS.md<br/>or CLAUDE.md]
     F1 -->|No| F3[Check global<br/>~/.claude/CLAUDE.md]
-    
+
     B --> G[5️⃣ Add Tool Definitions]
     G --> G1{Which tools enabled?}
     G1 -->|Agent config| G2[Load descriptions<br/>for enabled tools]
     G1 -->|All by default| G3[Load all 16 tools<br/>~6,600 tokens!]
-    
+
     C1 & D2 & D3 & D4 & D5 & D6 & E1 & F2 & F3 & G2 & G3 --> H[6️⃣ Combine Everything]
-    
+
     H --> I[7️⃣ Apply Caching]
     I --> I1{Anthropic/Claude?}
     I1 -->|Yes| I2[Mark first 2 system<br/>messages as cacheable]
     I1 -->|No| I3[No caching]
-    
+
     I2 & I3 --> J[8️⃣ Add Your Message]
-    
+
     J --> K[Send to AI Model]
-    
+
     K --> L{First request?}
     L -->|Yes| M[Full cost:<br/>All tokens charged]
     L -->|No + Cached| N[Discounted:<br/>90% cached at 10% cost]
-    
+
     M & N --> O[AI Responds]
-    
+
     style A fill:#e1f5ff
     style K fill:#fff4e1
     style M fill:#ffe1e1
@@ -337,12 +345,14 @@ graph TD
 Think of OpenCode context like building a **layer cake** for the AI to "eat":
 
 ### Layer 1: The Foundation (Header)
+
 - **What:** A tiny label saying who the AI is
 - **Size:** 0-12 tokens
 - **Example:** "You are Claude, made by Anthropic"
 - **Why:** Some models need this identity reminder
 
 ### Layer 2: The Recipe Book (Base Prompt)
+
 - **What:** Detailed instructions on how to behave
 - **Size:** 1,300-3,900 words (1,700-5,100 tokens!)
 - **Example:** "Be concise. Use tools. Don't write malicious code..."
@@ -350,12 +360,14 @@ Think of OpenCode context like building a **layer cake** for the AI to "eat":
 - **🚨 Problem:** This layer is HUGE and different per model!
 
 ### Layer 3: The Kitchen Tour (Environment)
+
 - **What:** Info about the project you're working in
 - **Size:** 40-600 tokens
 - **Example:** "You're in /project, here's the file tree with 50 files..."
 - **Why:** AI needs to know what files exist and where it is
 
 ### Layer 4: The House Rules (Custom Instructions)
+
 - **What:** YOUR personal preferences and rules
 - **Size:** 0-5,000 tokens (highly variable)
 - **Files:** `AGENTS.md`, `CLAUDE.md`, or files in `config.instructions`
@@ -363,6 +375,7 @@ Think of OpenCode context like building a **layer cake** for the AI to "eat":
 - **Why:** Customize AI behavior for your team/workflow
 
 ### Layer 5: The Toolbox Manual (Tool Definitions)
+
 - **What:** Descriptions of what tools the AI can use
 - **Size:** 0-6,600 tokens (330-1,900 per tool)
 - **Example:** "read: Read file contents. write: Create new files..."
@@ -370,6 +383,7 @@ Think of OpenCode context like building a **layer cake** for the AI to "eat":
 - **🚨 Problem:** All 16 tools = 6,600 tokens by default!
 
 ### Layer 6: Your Request (The Actual Question)
+
 - **What:** What you just typed
 - **Size:** ~1.3 tokens per word
 - **Example:** "Fix the authentication bug in auth.ts"
@@ -389,7 +403,7 @@ Think of OpenCode context like building a **layer cake** for the AI to "eat":
 │ • Custom Rules     →   500 tokens       │
 └─────────────────────────────────────────┘
          ↓ This repeats EVERY request
-         
+
 ┌─────────────────────────────────────────┐
 │ DYNAMIC CONTENT (Changes Each Request)  │ 10-100 tokens
 ├─────────────────────────────────────────┤
@@ -406,13 +420,13 @@ Think of OpenCode context like building a **layer cake** for the AI to "eat":
 
 Here's why you see different token counts for different models:
 
-| Model | Base Prompt | Size | Why Different? |
-|-------|------------|------|----------------|
-| **Claude** | anthropic.txt | 1,736 tokens | Optimized for Claude's style |
-| **GPT-4** | beast.txt | 2,475 tokens | Detailed reasoning instructions |
-| **GPT-5** | codex.txt | 5,122 tokens | Advanced multi-step guidance |
-| **Gemini** | gemini.txt | 2,906 tokens | Google-specific format |
-| **Ollama/Big Pickle** | qwen.txt | 2,075 tokens | Open-source model format |
+| Model                 | Base Prompt   | Size         | Why Different?                  |
+| --------------------- | ------------- | ------------ | ------------------------------- |
+| **Claude**            | anthropic.txt | 1,736 tokens | Optimized for Claude's style    |
+| **GPT-4**             | beast.txt     | 2,475 tokens | Detailed reasoning instructions |
+| **GPT-5**             | codex.txt     | 5,122 tokens | Advanced multi-step guidance    |
+| **Gemini**            | gemini.txt    | 2,906 tokens | Google-specific format          |
+| **Ollama/Big Pickle** | qwen.txt      | 2,075 tokens | Open-source model format        |
 
 **🚨 Key Point:** Your Ollama model gets the same 2,075-token prompt as GPT-4, even though it has a tiny 8k context window!
 
@@ -421,6 +435,7 @@ Here's why you see different token counts for different models:
 ## 🔄 How Caching Saves You Money
 
 **First Request (No Cache):**
+
 ```
 Request 1: "Hi"
 ├─ Base Prompt:        2,000 tokens × $3.00/1M  = $0.0060
@@ -432,6 +447,7 @@ Request 1: "Hi"
 ```
 
 **Second Request (With Cache):**
+
 ```
 Request 2: "Thanks"
 ├─ Base Prompt:        2,000 tokens × $0.30/1M  = $0.0006 (cached!)
@@ -440,7 +456,7 @@ Request 2: "Thanks"
 ├─ Your Message:          10 tokens × $3.00/1M  = $0.0000
 └─ AI Response:          100 tokens × $15.00/1M = $0.0015
                                     Total: $0.0042
-                                    
+
 Savings: 85% cheaper!
 ```
 
@@ -480,17 +496,19 @@ All 16 tools = 6,600 tokens, even if you only need 3.
 Before diving into the technical details, here are the fastest ways to reduce context:
 
 ### For Claude/Anthropic (Use Full Context)
+
 ```yaml
 # Don't optimize - caching makes it cheap!
 # Keep all tools and instructions
 ```
 
 ### For Ollama (Minimize Everything)
+
 ```yaml
 # .opencode/agent/ollama.md
 ---
 description: "Ollama optimized"
-prompt: "Code assistant"  # ← Replaces 2,075 token base prompt!
+prompt: "Code assistant" # ← Replaces 2,075 token base prompt!
 tools:
   read: true
   write: true
@@ -518,7 +536,7 @@ Before diving into details, here's how to check what context YOUR agents are usi
 
 ```bash
 # Run the token counting script
-cd /Users/darrenhinde/Documents/GitHub/opencode
+cd /Users/topwebmaster/Documents/GitHub/opencode
 ./script/count-agent-tokens.sh AGENT_NAME MODEL_ID PROVIDER
 
 # Examples:
@@ -549,6 +567,7 @@ $0.00 spent    ← Cost so far
 ```
 
 **🎯 Key Insight:** The token count includes `cache.read` tokens, so:
+
 - **High number + Claude = GOOD** (90% of it is cached/cheap)
 - **High number + Ollama = BAD** (eating your limited context)
 
@@ -613,13 +632,13 @@ cat .opencode/agent/your-agent.md | grep -A 20 "tools:"
 
 ### Quick Diagnostic Table
 
-| Symptom | Likely Cause | Fix |
-|---------|--------------|-----|
-| 8,000+ tokens on "Hi" | Base prompt + all tools loaded | Use minimal agent, disable tools |
-| Same tokens every request | No caching OR local model | Switch to Claude for caching |
-| 9k cache + 1k input | Perfect! Caching working | Nothing, this is optimal! |
-| Context 90% used (Ollama) | Too much context for small window | Minimize base prompt, disable tools |
-| Can't fit full context | Project too large + tools + prompt | Reduce tool count, use agent override |
+| Symptom                   | Likely Cause                       | Fix                                   |
+| ------------------------- | ---------------------------------- | ------------------------------------- |
+| 8,000+ tokens on "Hi"     | Base prompt + all tools loaded     | Use minimal agent, disable tools      |
+| Same tokens every request | No caching OR local model          | Switch to Claude for caching          |
+| 9k cache + 1k input       | Perfect! Caching working           | Nothing, this is optimal!             |
+| Context 90% used (Ollama) | Too much context for small window  | Minimize base prompt, disable tools   |
+| Can't fit full context    | Project too large + tools + prompt | Reduce tool count, use agent override |
 
 ### Example Verification Session
 
@@ -675,25 +694,23 @@ Every request to the AI follows this exact sequence. Here's the verified code fl
 **Source:** `packages/opencode/src/session/prompt.ts:492-512`
 
 ```typescript
-async function resolveSystemPrompt(input: {
-  system?: string
-  agent: Agent.Info
-  providerID: string
-  modelID: string
-}) {
-  let system = SystemPrompt.header(input.providerID)          // Step 1
-  system.push(...(() => {                                     // Step 2
-    if (input.system) return [input.system]
-    if (input.agent.prompt) return [input.agent.prompt]
-    return SystemPrompt.provider(input.modelID)
-  })())
-  system.push(...(await SystemPrompt.environment()))          // Step 3
-  system.push(...(await SystemPrompt.custom()))               // Step 4
-  
+async function resolveSystemPrompt(input: { system?: string; agent: Agent.Info; providerID: string; modelID: string }) {
+  let system = SystemPrompt.header(input.providerID); // Step 1
+  system.push(
+    ...(() => {
+      // Step 2
+      if (input.system) return [input.system];
+      if (input.agent.prompt) return [input.agent.prompt];
+      return SystemPrompt.provider(input.modelID);
+    })(),
+  );
+  system.push(...(await SystemPrompt.environment())); // Step 3
+  system.push(...(await SystemPrompt.custom())); // Step 4
+
   // Combine into max 2 messages for caching
-  const [first, ...rest] = system
-  system = [first, rest.join("\n")]
-  return system
+  const [first, ...rest] = system;
+  system = [first, rest.join("\n")];
+  return system;
 }
 ```
 
@@ -705,16 +722,18 @@ async function resolveSystemPrompt(input: {
 
 ```typescript
 export function header(providerID: string) {
-  if (providerID.includes("anthropic")) return [PROMPT_ANTHROPIC_SPOOF.trim()]
-  return []
+  if (providerID.includes("anthropic")) return [PROMPT_ANTHROPIC_SPOOF.trim()];
+  return [];
 }
 ```
 
 **What gets added:**
+
 - **Anthropic only:** "You are Claude, a large language model trained by Anthropic." (~9 words)
 - **All others:** Nothing
 
 **Token cost:**
+
 - Anthropic: ~12 tokens
 - Others: 0 tokens
 
@@ -726,29 +745,29 @@ export function header(providerID: string) {
 
 ```typescript
 export function provider(modelID: string) {
-  if (modelID.includes("gpt-5")) return [PROMPT_CODEX]
-  if (modelID.includes("gpt-") || modelID.includes("o1") || modelID.includes("o3")) 
-    return [PROMPT_BEAST]
-  if (modelID.includes("gemini-")) return [PROMPT_GEMINI]
-  if (modelID.includes("claude")) return [PROMPT_ANTHROPIC]
-  return [PROMPT_ANTHROPIC_WITHOUT_TODO]  // Default fallback
+  if (modelID.includes("gpt-5")) return [PROMPT_CODEX];
+  if (modelID.includes("gpt-") || modelID.includes("o1") || modelID.includes("o3")) return [PROMPT_BEAST];
+  if (modelID.includes("gemini-")) return [PROMPT_GEMINI];
+  if (modelID.includes("claude")) return [PROMPT_ANTHROPIC];
+  return [PROMPT_ANTHROPIC_WITHOUT_TODO]; // Default fallback
 }
 ```
 
 **Override Priority:**
+
 1. If `--system "custom"` flag used → Use that
 2. If agent has `prompt:` field → Use agent prompt
 3. Otherwise → Select by model ID
 
 **Verified Prompt Files & Token Counts:**
 
-| Model Pattern | File | Words | Approx Tokens | Used By |
-|--------------|------|-------|---------------|---------|
-| `gpt-5` | codex.txt | 3,940 | ~5,122 | GPT-5, o1-pro, o1-2024-12-17 |
-| `gpt-*`, `o1`, `o3` | beast.txt | 1,904 | ~2,475 | GPT-4, o1, o3 |
-| `gemini-` | gemini.txt | 2,235 | ~2,906 | Gemini models |
-| `claude` | anthropic.txt | 1,335 | ~1,736 | Claude 3.5, 3, etc. |
-| **Default** | qwen.txt | 1,596 | **~2,075** | **Big Pickle, Ollama, DeepSeek, etc.** |
+| Model Pattern       | File          | Words | Approx Tokens | Used By                                |
+| ------------------- | ------------- | ----- | ------------- | -------------------------------------- |
+| `gpt-5`             | codex.txt     | 3,940 | ~5,122        | GPT-5, o1-pro, o1-2024-12-17           |
+| `gpt-*`, `o1`, `o3` | beast.txt     | 1,904 | ~2,475        | GPT-4, o1, o3                          |
+| `gemini-`           | gemini.txt    | 2,235 | ~2,906        | Gemini models                          |
+| `claude`            | anthropic.txt | 1,335 | ~1,736        | Claude 3.5, 3, etc.                    |
+| **Default**         | qwen.txt      | 1,596 | **~2,075**    | **Big Pickle, Ollama, DeepSeek, etc.** |
 
 **🔥 Key Insight:** Models that don't match specific patterns (like Big Pickle, Ollama models, most local models) get the **qwen.txt** prompt by default, which is ~2,075 tokens!
 
@@ -760,7 +779,7 @@ export function provider(modelID: string) {
 
 ```typescript
 export async function environment() {
-  const project = Instance.project
+  const project = Instance.project;
   return [
     [
       `Here is some useful information about the environment you are running in:`,
@@ -775,17 +794,18 @@ export async function environment() {
         project.vcs === "git"
           ? await Ripgrep.tree({
               cwd: Instance.directory,
-              limit: 200,  // ← Max 200 files shown
+              limit: 200, // ← Max 200 files shown
             })
           : ""
       }`,
       `</project>`,
     ].join("\n"),
-  ]
+  ];
 }
 ```
 
 **What gets added:**
+
 1. Working directory path
 2. Git repo status
 3. Platform (darwin/linux/win32)
@@ -796,6 +816,7 @@ export async function environment() {
    - ~3-5 tokens per file
 
 **Token cost:**
+
 - Base info: ~40 tokens
 - Project tree: ~3 tokens × number of files (max 200 files = ~600 tokens)
 - **Typical:** 40-400 tokens depending on project size
@@ -874,7 +895,6 @@ export async function custom() {
    - Looks for: `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`
    - Searches: Current dir → Parent → Grandparent → ... → Git root
    - **Stops:** After finding **first match** (all three files, or just one)
-   
 2. **Global Files** (exact paths):
    - `~/.config/opencode/AGENTS.md` OR
    - `~/.claude/CLAUDE.md`
@@ -883,12 +903,10 @@ export async function custom() {
 3. **Config Instructions** (if you add to `opencode.json`):
    ```json
    {
-     "instructions": [
-       ".opencode/rules.md",
-       "~/my-custom-rules.md"
-     ]
+     "instructions": [".opencode/rules.md", "~/my-custom-rules.md"]
    }
    ```
+
    - Supports globs
    - Loads ALL matches
 
@@ -904,6 +922,7 @@ export async function custom() {
 ✅ Only if the specific files exist
 
 **Token cost:**
+
 - Varies widely: 0 - 5,000+ tokens depending on file content
 - **Typical:** 50-500 tokens per file
 
@@ -928,7 +947,7 @@ async function resolveTools(input: {
     mergeDeep(await ToolRegistry.enabled(...)),         // 2. Default tools
     mergeDeep(input.tools ?? {}),                       // 3. Request override
   )
-  
+
   // Only load enabled tools
   for (const item of await ToolRegistry.tools(...)) {
     if (Wildcard.all(item.id, enabledTools) === false) continue
@@ -939,26 +958,27 @@ async function resolveTools(input: {
 
 **Verified Tool Sizes (from source code):**
 
-| Tool | Words | Tokens | Description Size |
-|------|-------|--------|-----------------|
-| todowrite | 1,380 | ~1,794 | Largest - complex schema |
-| bash | 1,453 | ~1,889 | Large - detailed examples |
-| task | 625 | ~812 | Medium - agent descriptions |
-| multiedit | 416 | ~541 | Medium |
-| edit | 227 | ~295 | Small-medium |
-| read | 203 | ~264 | Small-medium |
-| todoread | 177 | ~230 | Small-medium |
-| webfetch | 148 | ~192 | Small |
-| grep | 112 | ~146 | Small |
-| write | 108 | ~140 | Small |
-| glob | 94 | ~122 | Small |
-| websearch | 77 | ~100 | Small |
-| ls | 53 | ~69 | Tiny |
-| lsp-hover | 3 | ~4 | Minimal |
-| lsp-diagnostics | 3 | ~4 | Minimal |
-| patch | 3 | ~4 | Minimal |
+| Tool            | Words | Tokens | Description Size            |
+| --------------- | ----- | ------ | --------------------------- |
+| todowrite       | 1,380 | ~1,794 | Largest - complex schema    |
+| bash            | 1,453 | ~1,889 | Large - detailed examples   |
+| task            | 625   | ~812   | Medium - agent descriptions |
+| multiedit       | 416   | ~541   | Medium                      |
+| edit            | 227   | ~295   | Small-medium                |
+| read            | 203   | ~264   | Small-medium                |
+| todoread        | 177   | ~230   | Small-medium                |
+| webfetch        | 148   | ~192   | Small                       |
+| grep            | 112   | ~146   | Small                       |
+| write           | 108   | ~140   | Small                       |
+| glob            | 94    | ~122   | Small                       |
+| websearch       | 77    | ~100   | Small                       |
+| ls              | 53    | ~69    | Tiny                        |
+| lsp-hover       | 3     | ~4     | Minimal                     |
+| lsp-diagnostics | 3     | ~4     | Minimal                     |
+| patch           | 3     | ~4     | Minimal                     |
 
 **Default Tool Set (if not specified):**
+
 - All 16 tools enabled
 - **Total: ~6,606 tokens** (verified by summing above)
 
@@ -967,8 +987,8 @@ async function resolveTools(input: {
 ```yaml
 # In agent config:
 tools:
-  read: true      # Explicitly enable
-  write: false    # Explicitly disable
+  read: true # Explicitly enable
+  write: false # Explicitly disable
   # If not listed, uses default (usually enabled)
 ```
 
@@ -981,6 +1001,7 @@ tools:
 Your conversation messages (user + assistant) are added after system prompts and tools.
 
 **Token cost:**
+
 - Your input: ~1.3 tokens per word
 - Previous messages: Accumulates with conversation history
 
@@ -991,6 +1012,7 @@ Your conversation messages (user + assistant) are added after system prompts and
 ### Why Different Models Get Different Prompts
 
 Each model family has different:
+
 - **Instruction-following style**
 - **Output formatting preferences**
 - **Tool-calling conventions**
@@ -1001,12 +1023,11 @@ Each model family has different:
 **Source:** `packages/opencode/src/session/system.ts:25-31`
 
 ```typescript
-if (modelID.includes("gpt-5")) return [PROMPT_CODEX]
-if (modelID.includes("gpt-") || modelID.includes("o1") || modelID.includes("o3")) 
-  return [PROMPT_BEAST]
-if (modelID.includes("gemini-")) return [PROMPT_GEMINI]
-if (modelID.includes("claude")) return [PROMPT_ANTHROPIC]
-return [PROMPT_ANTHROPIC_WITHOUT_TODO]  // ← Default
+if (modelID.includes("gpt-5")) return [PROMPT_CODEX];
+if (modelID.includes("gpt-") || modelID.includes("o1") || modelID.includes("o3")) return [PROMPT_BEAST];
+if (modelID.includes("gemini-")) return [PROMPT_GEMINI];
+if (modelID.includes("claude")) return [PROMPT_ANTHROPIC];
+return [PROMPT_ANTHROPIC_WITHOUT_TODO]; // ← Default
 ```
 
 ### Detailed Prompt Comparison
@@ -1014,17 +1035,20 @@ return [PROMPT_ANTHROPIC_WITHOUT_TODO]  // ← Default
 #### 1. **Claude (anthropic.txt)** - 1,335 words, ~1,736 tokens
 
 **Optimized for:**
+
 - Claude 3.5 Sonnet, Claude 3 Opus
 - Anthropic's instruction-following style
 - Tool use patterns
 
 **Key features:**
+
 - Concise, direct instructions
 - Emphasizes "think step-by-step"
 - Specific tool usage examples
 - Citations format
 
 **Sample excerpt:**
+
 ```
 You are opencode, an AI assistant specialized in software engineering...
 IMPORTANT: Keep responses short and to the point.
@@ -1036,22 +1060,26 @@ When using tools, plan your approach before executing.
 #### 2. **Qwen/Default (qwen.txt)** - 1,596 words, ~2,075 tokens
 
 **Used by:**
+
 - Big Pickle
 - Ollama models (llama, qwen, deepseek, etc.)
 - Any model not matching other patterns
 
 **Optimized for:**
+
 - Open-source models
 - Models with smaller context windows
 - General-purpose instruction following
 
 **Key differences from Claude:**
+
 - More verbose examples
 - Detailed tool explanations
 - Explicit formatting instructions
 - Less assumption about model capabilities
 
 **Sample excerpt:**
+
 ```
 You are opencode, an interactive CLI tool that helps users with software engineering tasks...
 IMPORTANT: Refuse to write code or explain code that may be used maliciously...
@@ -1059,6 +1087,7 @@ When the user asks about opencode, use WebFetch tool to gather information...
 ```
 
 **🚨 Why this matters for Ollama:**
+
 - Ollama models often have 4k-32k context
 - 2,075 tokens is 6-50% of total context!
 - No caching support = every token costs
@@ -1068,16 +1097,19 @@ When the user asks about opencode, use WebFetch tool to gather information...
 #### 3. **Beast (beast.txt)** - 1,904 words, ~2,475 tokens
 
 **Used by:**
+
 - GPT-4, GPT-4 Turbo
 - o1, o1-mini
 - o3
 
 **Optimized for:**
+
 - OpenAI's reasoning models
 - Structured thinking
 - Chain-of-thought
 
 **Key features:**
+
 - More detailed reasoning instructions
 - Explicit step-by-step guidance
 - Tool composition patterns
@@ -1087,15 +1119,18 @@ When the user asks about opencode, use WebFetch tool to gather information...
 #### 4. **Codex (codex.txt)** - 3,940 words, ~5,122 tokens
 
 **Used by:**
+
 - GPT-5 (when available)
 - Future advanced models
 
 **Optimized for:**
+
 - Multi-step complex tasks
 - Code generation at scale
 - Advanced reasoning
 
 **Why so large:**
+
 - Comprehensive tool documentation
 - Complex workflow examples
 - Advanced patterns
@@ -1105,10 +1140,12 @@ When the user asks about opencode, use WebFetch tool to gather information...
 #### 5. **Gemini (gemini.txt)** - 2,235 words, ~2,906 tokens
 
 **Used by:**
+
 - Gemini 1.5 Pro
 - Gemini 2.0
 
 **Optimized for:**
+
 - Google's instruction format
 - Gemini-specific features
 - Multi-modal capabilities
@@ -1146,8 +1183,8 @@ Edit `packages/opencode/src/session/system.ts`:
 ```typescript
 export function provider(modelID: string) {
   // Force minimal for specific models
-  if (modelID.includes("ollama")) return ["You are a coding assistant."]
-  
+  if (modelID.includes("ollama")) return ["You are a coding assistant."];
+
   // ... rest of logic
 }
 ```
@@ -1166,8 +1203,8 @@ export function provider(modelID: string) {
 
 ```typescript
 function applyCaching(msgs: ModelMessage[], providerID: string): ModelMessage[] {
-  const system = msgs.filter((msg) => msg.role === "system").slice(0, 2)
-  const final = msgs.filter((msg) => msg.role !== "system").slice(-2)
+  const system = msgs.filter((msg) => msg.role === "system").slice(0, 2);
+  const final = msgs.filter((msg) => msg.role !== "system").slice(-2);
 
   const providerOptions = {
     anthropic: {
@@ -1182,38 +1219,38 @@ function applyCaching(msgs: ModelMessage[], providerID: string): ModelMessage[] 
     openaiCompatible: {
       cache_control: { type: "ephemeral" },
     },
-  }
+  };
   // ... applies to last 2 system messages and last 2 conversation messages
 }
 
 export function message(msgs: ModelMessage[], providerID: string, modelID: string) {
   if (providerID === "anthropic" || modelID.includes("anthropic") || modelID.includes("claude")) {
-    msgs = applyCaching(msgs, providerID)
+    msgs = applyCaching(msgs, providerID);
   }
-  return msgs
+  return msgs;
 }
 ```
 
 **Verified Providers:**
 
-| Provider | Supports Caching | How it Works |
-|----------|-----------------|--------------|
-| **Anthropic** | ✅ Yes | Auto-applied via `cacheControl: ephemeral` |
-| **OpenRouter** | ✅ Yes (if Anthropic backend) | Auto-applied via `cache_control` |
-| **Bedrock** | ✅ Yes (if Anthropic models) | Auto-applied via `cachePoint` |
-| **OpenAI-compatible** | ✅ Maybe | Depends on backend |
-| **OpenAI** | ⚠️ Partial | Uses `promptCacheKey` (different system) |
-| **Ollama** | ❌ No | Local models don't cache |
-| **LM Studio** | ❌ No | Local server |
-| **OpenCode (Big Pickle)** | ⚠️ Special | Routes through Anthropic API internally |
+| Provider                  | Supports Caching              | How it Works                               |
+| ------------------------- | ----------------------------- | ------------------------------------------ |
+| **Anthropic**             | ✅ Yes                        | Auto-applied via `cacheControl: ephemeral` |
+| **OpenRouter**            | ✅ Yes (if Anthropic backend) | Auto-applied via `cache_control`           |
+| **Bedrock**               | ✅ Yes (if Anthropic models)  | Auto-applied via `cachePoint`              |
+| **OpenAI-compatible**     | ✅ Maybe                      | Depends on backend                         |
+| **OpenAI**                | ⚠️ Partial                    | Uses `promptCacheKey` (different system)   |
+| **Ollama**                | ❌ No                         | Local models don't cache                   |
+| **LM Studio**             | ❌ No                         | Local server                               |
+| **OpenCode (Big Pickle)** | ⚠️ Special                    | Routes through Anthropic API internally    |
 
 ### What Gets Cached?
 
 **Logic:** First 2 system messages + Last 2 conversation messages
 
 ```typescript
-const system = msgs.filter((msg) => msg.role === "system").slice(0, 2)
-const final = msgs.filter((msg) => msg.role !== "system").slice(-2)
+const system = msgs.filter((msg) => msg.role === "system").slice(0, 2);
+const final = msgs.filter((msg) => msg.role !== "system").slice(-2);
 ```
 
 **Typical cache structure:**
@@ -1230,12 +1267,14 @@ Message N+1 (user) - Current question            [NOT CACHED]
 ### Cache Expiration
 
 **Anthropic:**
+
 - **5 minutes** of inactivity
 - Auto-refreshes on each request
 - Free cache writes (no cost)
 - Cache reads: 10% of input token cost
 
 **Example costs (Claude 3.5 Sonnet):**
+
 - Input tokens: $3.00 per 1M tokens
 - Cached tokens: $0.30 per 1M tokens (10x cheaper!)
 - Output tokens: $15.00 per 1M tokens
@@ -1253,6 +1292,7 @@ Breakdown:
 ```
 
 **Actual cost calculation:**
+
 ```
 Cache read: 8,500 × $0.30 / 1M = $0.00255
 Input: 1,200 × $3.00 / 1M = $0.00360
@@ -1276,6 +1316,7 @@ You → OpenCode CLI → OpenCode API → Anthropic API → Big Pickle model
 ```
 
 **Evidence:**
+
 - You see `cache.read` tokens
 - Token counts match Anthropic's behavior
 - Costs are charged (not free like local Ollama)
@@ -1311,17 +1352,20 @@ cat ~/.local/share/opencode/storage/message/ses_YOUR_SESSION_ID/*.json | \
 **Search path:** Current directory → Parent → ... → Git root
 
 **Files searched (in order):**
+
 1. `AGENTS.md` ← Most common
 2. `CLAUDE.md` ← Legacy
 3. `CONTEXT.md` ← Deprecated
 
 **Behavior:**
+
 - Searches UP the directory tree
 - Stops at first directory containing ANY of these files
 - Loads ALL found files from that directory
 - Does NOT search subdirectories
 
 **Example:**
+
 ```
 /Users/you/project/
   .opencode/
@@ -1334,10 +1378,12 @@ cat ~/.local/share/opencode/storage/message/ses_YOUR_SESSION_ID/*.json | \
 ### Global Files
 
 **Exact paths checked (in order):**
+
 1. `~/.config/opencode/AGENTS.md`
 2. `~/.claude/CLAUDE.md`
 
 **Behavior:**
+
 - Checks exact paths only
 - Loads first one found
 - Stops after first match
@@ -1349,14 +1395,15 @@ cat ~/.local/share/opencode/storage/message/ses_YOUR_SESSION_ID/*.json | \
 ```json
 {
   "instructions": [
-    ".opencode/rules/*.md",           // Glob pattern
-    "~/global-rules.md",              // Absolute path
-    "docs/coding-standards.md"        // Relative path
+    ".opencode/rules/*.md", // Glob pattern
+    "~/global-rules.md", // Absolute path
+    "docs/coding-standards.md" // Relative path
   ]
 }
 ```
 
 **Behavior:**
+
 - Supports globs (`*`, `**`)
 - Searches UP the tree for relative paths
 - Loads ALL matches (no stopping)
@@ -1371,6 +1418,7 @@ When combining instructions:
 3. Config-specified files
 
 All are concatenated with:
+
 ```
 Instructions from: /path/to/file.md
 <file content>
@@ -1379,21 +1427,24 @@ Instructions from: /path/to/file.md
 ### How to Disable Custom Instructions
 
 **Method 1:** Rename files
+
 ```bash
 mv AGENTS.md AGENTS.md.disabled
 mv ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.disabled
 ```
 
 **Method 2:** Move to different location
+
 ```bash
 mkdir .opencode/disabled
 mv .opencode/AGENTS.md .opencode/disabled/
 ```
 
 **Method 3:** Remove from config
+
 ```json
 {
-  "instructions": []  // Empty array
+  "instructions": [] // Empty array
 }
 ```
 
@@ -1411,22 +1462,22 @@ mv .opencode/AGENTS.md .opencode/disabled/
 
 **Expensive tools to consider disabling:**
 
-| Tool | Tokens | When to Disable |
-|------|--------|-----------------|
-| todowrite | 1,794 | Don't need task management |
-| bash | 1,889 | Read-only workflows |
-| task | 812 | Don't use subagents |
-| multiedit | 541 | Single-file edits only |
+| Tool      | Tokens | When to Disable            |
+| --------- | ------ | -------------------------- |
+| todowrite | 1,794  | Don't need task management |
+| bash      | 1,889  | Read-only workflows        |
+| task      | 812    | Don't use subagents        |
+| multiedit | 541    | Single-file edits only     |
 
 **Cheap tools worth keeping:**
 
-| Tool | Tokens | Why Keep |
-|------|--------|----------|
-| read | 264 | Essential for reading files |
-| write | 140 | Essential for creating files |
-| edit | 295 | Essential for modifying files |
-| grep | 146 | Fast text search |
-| glob | 122 | Find files by pattern |
+| Tool  | Tokens | Why Keep                      |
+| ----- | ------ | ----------------------------- |
+| read  | 264    | Essential for reading files   |
+| write | 140    | Essential for creating files  |
+| edit  | 295    | Essential for modifying files |
+| grep  | 146    | Fast text search              |
+| glob  | 122    | Find files by pattern         |
 
 ### How to Configure Tools
 
@@ -1480,11 +1531,13 @@ tools:
 **Rationale:** Caching makes large contexts cheap
 
 **Recommended:**
+
 - Keep all tools enabled
 - Include detailed instructions
 - Don't worry about context size
 
 **Typical setup:**
+
 ```
 Base prompt: 1,736 tokens
 Tools: 6,606 tokens
@@ -1513,10 +1566,10 @@ Edit `packages/opencode/src/session/system.ts`:
 export function provider(modelID: string) {
   // Add before other checks:
   if (modelID.includes("ollama") || modelID.includes("llama")) {
-    return ["You are a coding assistant. Be concise."]  // 8 tokens!
+    return ["You are a coding assistant. Be concise."]; // 8 tokens!
   }
-  
-  if (modelID.includes("gpt-5")) return [PROMPT_CODEX]
+
+  if (modelID.includes("gpt-5")) return [PROMPT_CODEX];
   // ... rest
 }
 ```
@@ -1565,6 +1618,7 @@ tools:
 ```
 
 **Result:**
+
 ```
 Base prompt override: 5 tokens
 Environment: 40 tokens
@@ -1582,11 +1636,13 @@ From 8,000+ to 745 = 91% reduction!
 **Rationale:** Good context window, some caching support
 
 **Recommended:**
+
 - Use default prompts (well-optimized)
 - Enable most tools
 - Moderate custom instructions
 
 **Typical setup:**
+
 ```
 Base prompt: 2,475 tokens
 Tools: 4,000 tokens (disable heavy ones)
@@ -1603,11 +1659,13 @@ Total: 6,975 tokens
 **Since it routes through Anthropic API:**
 
 **Option 1:** Treat like Claude (use caching)
+
 - Keep full context
 - Benefit from caching
 - Pay Anthropic rates
 
 **Option 2:** Optimize for cost
+
 - Disable unnecessary tools
 - Minimal custom instructions
 - Reduce base prompt via agent override
@@ -1723,7 +1781,7 @@ Tools                            0    Yes
 Context Total                   46    Yes
 Message                          4    No
 ───────────────────────────────────────────
-TOTAL                           50    
+TOTAL                           50
 
 Savings: 97.7% reduction!
 ```
@@ -1832,4 +1890,3 @@ grep -r "Instructions from:" ~/.local/share/opencode/storage/message/
 
 **Last Updated:** Dec 7, 2025  
 **Verified Against:** OpenCode source code `packages/opencode/src/session/`
-

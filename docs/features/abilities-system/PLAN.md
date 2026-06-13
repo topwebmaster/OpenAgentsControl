@@ -1,7 +1,7 @@
 # Abilities System - Implementation Plan
 
 > **Status:** Planning Complete - Ready for Implementation  
-> **Issue:** [#33](https://github.com/darrenhinde/OpenAgentsControl/issues/33)  
+> **Issue:** [#33](https://github.com/topwebmaster/OpenAgentsControl/issues/33)  
 > **Date:** December 31, 2025
 
 ---
@@ -11,6 +11,7 @@
 **Enforced, validated workflows that work with any agent and guarantee execution.**
 
 Abilities solve the fundamental problem with Skills: **LLMs ignore them**. With Abilities:
+
 - Steps **must** run (enforced via hooks)
 - Scripts run **deterministically** (no AI variance)
 - Validation **guarantees** each step completed
@@ -22,23 +23,23 @@ Abilities solve the fundamental problem with Skills: **LLMs ignore them**. With 
 
 ### Current State (Skills)
 
-| Issue | Impact |
-|-------|--------|
-| LLM ignores skill instructions | Critical steps skipped |
-| No enforcement mechanism | Can't guarantee execution |
-| No validation | Don't know if steps completed |
-| Pure AI (unpredictable) | Results vary each run |
-| Single agent only | No coordination |
+| Issue                          | Impact                        |
+| ------------------------------ | ----------------------------- |
+| LLM ignores skill instructions | Critical steps skipped        |
+| No enforcement mechanism       | Can't guarantee execution     |
+| No validation                  | Don't know if steps completed |
+| Pure AI (unpredictable)        | Results vary each run         |
+| Single agent only              | No coordination               |
 
 ### Desired State (Abilities)
 
-| Feature | Benefit |
-|---------|---------|
-| Hook enforcement | AI **cannot** skip steps |
-| Script steps | Deterministic execution |
-| Validation rules | Guaranteed completion |
+| Feature             | Benefit                                 |
+| ------------------- | --------------------------------------- |
+| Hook enforcement    | AI **cannot** skip steps                |
+| Script steps        | Deterministic execution                 |
+| Validation rules    | Guaranteed completion                   |
 | Multi-agent support | Coordinate any OpenAgents Control agent |
-| Approval gates | Human-in-the-loop where needed |
+| Approval gates      | Human-in-the-loop where needed          |
 
 ---
 
@@ -138,7 +139,7 @@ Priority order:
 # Auto-generated name: deploy/production
 
 # Or explicit override:
-name: deploy-to-prod  # Custom name
+name: deploy-to-prod # Custom name
 ```
 
 ---
@@ -149,19 +150,19 @@ name: deploy-to-prod  # Custom name
 
 ```yaml
 # ability.yaml
-name: safe-deploy                    # Unique identifier
+name: safe-deploy # Unique identifier
 description: Deploy with safety checks
-version: 1.0.0                       # Optional versioning
+version: 1.0.0 # Optional versioning
 
 # ─────────────────────────────────────────────
 # TRIGGERS - When this ability activates
 # ─────────────────────────────────────────────
 triggers:
-  keywords:                          # Keyword matching
+  keywords: # Keyword matching
     - "deploy"
     - "ship it"
     - "release to production"
-  patterns:                          # Regex patterns (optional)
+  patterns: # Regex patterns (optional)
     - "deploy.*to.*prod"
 
 # ─────────────────────────────────────────────
@@ -171,9 +172,9 @@ inputs:
   version:
     type: string
     required: true
-    pattern: '^v\d+\.\d+\.\d+$'      # Semver validation
+    pattern: '^v\d+\.\d+\.\d+$' # Semver validation
     description: "Version to deploy (e.g., v1.2.3)"
-  
+
   environment:
     type: string
     required: true
@@ -191,14 +192,14 @@ steps:
     validation:
       exit_code: 0
     on_failure: stop
-    
+
   - id: build
     type: script
     description: Build for target environment
     run: npm run build -- --env={{inputs.environment}}
     needs: [test]
     timeout: 5m
-    
+
   - id: review
     type: agent
     description: Security review
@@ -207,7 +208,7 @@ steps:
       Review the build output for security issues.
       Environment: {{inputs.environment}}
     needs: [build]
-    
+
   - id: approve
     type: approval
     description: Production approval
@@ -216,7 +217,7 @@ steps:
       Ready to deploy {{inputs.version}} to {{inputs.environment}}.
       Proceed?
     needs: [review]
-    
+
   - id: deploy
     type: script
     description: Deploy to environment
@@ -229,88 +230,93 @@ steps:
 # SETTINGS - Ability-level configuration
 # ─────────────────────────────────────────────
 settings:
-  timeout: 30m                       # Total timeout
-  parallel: false                    # Sequential by default
-  enforcement: strict                # strict | normal | loose
-  on_failure: stop                   # Default failure behavior
+  timeout: 30m # Total timeout
+  parallel: false # Sequential by default
+  enforcement: strict # strict | normal | loose
+  on_failure: stop # Default failure behavior
 ```
 
 ### Step Types
 
 #### Script Step
+
 ```yaml
 - id: test
   type: script
-  run: npm test                      # Command to run
-  cwd: ./packages/api                # Working directory (optional)
-  env:                               # Environment variables
+  run: npm test # Command to run
+  cwd: ./packages/api # Working directory (optional)
+  env: # Environment variables
     NODE_ENV: test
   validation:
-    exit_code: 0                     # Required exit code
-    stdout_contains: "passed"        # Optional
-    file_exists: ./coverage/         # Optional
+    exit_code: 0 # Required exit code
+    stdout_contains: "passed" # Optional
+    file_exists: ./coverage/ # Optional
   timeout: 10m
   on_failure: stop | continue | retry
   max_retries: 2
 ```
 
 #### Agent Step
+
 ```yaml
 - id: review
   type: agent
-  agent: reviewer                    # Agent name (from OpenAgents Control)
-  prompt: "Review this code..."      # Task for agent
-  context:                           # Additional context (optional)
+  agent: reviewer # Agent name (from OpenAgents Control)
+  prompt: "Review this code..." # Task for agent
+  context: # Additional context (optional)
     - ./src/
-    - {{steps.build.output}}
+    - { { steps.build.output } }
   timeout: 5m
   on_failure: stop
 ```
 
 #### Skill Step
+
 ```yaml
 - id: docs
   type: skill
-  skill: generate-docs               # Skill name
-  inputs:                            # Skill inputs (optional)
+  skill: generate-docs # Skill name
+  inputs: # Skill inputs (optional)
     format: markdown
 ```
 
 #### Approval Step
+
 ```yaml
 - id: approve
   type: approval
   prompt: "Deploy to production?"
-  options:                           # Custom options (optional)
+  options: # Custom options (optional)
     - label: Approve
       value: approved
     - label: Reject
       value: rejected
-  timeout: 1h                        # Auto-reject after timeout
+  timeout: 1h # Auto-reject after timeout
   when: inputs.environment == "production"
 ```
 
 #### Workflow Step (Nested)
+
 ```yaml
 - id: setup
   type: workflow
-  workflow: setup-environment        # Call another ability
+  workflow: setup-environment # Call another ability
   inputs:
-    env: {{inputs.environment}}
+    env: { { inputs.environment } }
 ```
 
 ### Step Properties Reference
 
-| Property | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `id` | Yes | - | Unique step identifier |
-| `type` | Yes | - | script, agent, skill, approval, workflow |
-| `description` | No | - | Human-readable description |
-| `needs` | No | `[]` | Dependencies (steps that must complete first) |
-| `when` | No | `true` | Conditional execution |
-| `timeout` | No | `5m` | Max duration |
-| `on_failure` | No | `stop` | stop, continue, retry, ask |
-| `max_retries` | No | `1` | Retry attempts (if retry) |
+| Property      | Required | Default | Description                                   |
+| ------------- | -------- | ------- | --------------------------------------------- |
+| `id`          | Yes      | -       | Unique step identifier                        |
+| `type`        | Yes      | -       | script, agent, skill, approval, workflow      |
+| `description` | No       | -       | Human-readable description                    |
+| `needs`       | No       | `[]`    | Dependencies (steps that must complete first) |
+| `when`        | No       | `true`  | Conditional execution                         |
+| `timeout`     | No       | `5m`    | Max duration                                  |
+| `on_failure`  | No       | `stop`  | stop, continue, retry, ask                    |
+| `max_retries` | No       | `1`     | Retry attempts (if retry)                     |
 
 ---
 
@@ -365,14 +371,14 @@ compatible_agents:
 async "tool.execute.before"(ctx, tool) {
   const ability = ctx.state.activeAbility
   if (!ability) return
-  
+
   const currentStep = ability.currentStep
-  
+
   // Script steps block ALL tools
   if (currentStep.type === 'script') {
     throw new Error(`Step '${currentStep.id}' is running. Wait for completion.`)
   }
-  
+
   // Agent steps allow only that agent's tools
   if (currentStep.type === 'agent') {
     const allowed = getAgentTools(currentStep.agent)
@@ -386,7 +392,7 @@ async "tool.execute.before"(ctx, tool) {
 async "chat.message"(ctx, message) {
   const ability = ctx.state.activeAbility
   if (!ability) return
-  
+
   message.parts.unshift({
     type: "text",
     synthetic: true,
@@ -411,11 +417,11 @@ async "session.idle"(ctx) {
 
 ### Enforcement Levels
 
-| Level | Behavior |
-|-------|----------|
+| Level    | Behavior                                          |
+| -------- | ------------------------------------------------- |
 | `strict` | Block ALL tools outside current step, cannot exit |
-| `normal` | Block destructive tools, can exit with warning |
-| `loose` | Advisory only, can skip with confirmation |
+| `normal` | Block destructive tools, can exit with warning    |
+| `loose`  | Advisory only, can skip with confirmation         |
 
 ---
 
@@ -433,7 +439,7 @@ steps:
 
   - id: plan
     agent: oracle
-    needs: [research]  # Gets research output automatically
+    needs: [research] # Gets research output automatically
     prompt: "Create plan based on the research"
 ```
 
@@ -443,11 +449,13 @@ When `plan` runs, executor injects:
 ## Context from prior steps
 
 ### Step: research (librarian)
+
 [Full output from research step]
 
 ---
 
 ## Your task
+
 Create plan based on the research
 ```
 
@@ -481,7 +489,7 @@ const AbilitySchema = z.object({
   inputs: z.record(InputSchema).optional(),
   steps: z.array(StepSchema).min(1),
   settings: SettingsSchema.optional(),
-})
+});
 ```
 
 ### Dependency Validation
@@ -504,24 +512,24 @@ const AbilitySchema = z.object({
 ### Using from Subagents
 
 ```typescript
-import { OpenCodeSDK } from '@opencode/sdk'
+import { OpenCodeSDK } from "@opencode/sdk";
 
-const sdk = new OpenCodeSDK()
+const sdk = new OpenCodeSDK();
 
 // List abilities
-const abilities = await sdk.abilities.list()
+const abilities = await sdk.abilities.list();
 
 // Execute
 const result = await sdk.abilities.execute({
-  name: 'deploy/production',
-  inputs: { version: 'v1.2.3', environment: 'staging' }
-})
+  name: "deploy/production",
+  inputs: { version: "v1.2.3", environment: "staging" },
+});
 
 // Check status
-const status = await sdk.abilities.status(result.executionId)
+const status = await sdk.abilities.status(result.executionId);
 
 // Wait for completion
-const final = await sdk.abilities.waitFor(result.executionId)
+const final = await sdk.abilities.waitFor(result.executionId);
 ```
 
 ---
@@ -660,7 +668,7 @@ steps:
   - id: get-diff
     type: script
     run: git diff --staged > /tmp/diff.txt
-    
+
   - id: review
     type: agent
     agent: reviewer
@@ -690,34 +698,34 @@ steps:
     run: npm test
     validation:
       exit_code: 0
-      
+
   - id: build
     type: script
     run: npm run build
     needs: [test]
-    
+
   - id: security-scan
     type: agent
     agent: reviewer
     prompt: "Scan for security vulnerabilities"
     needs: [build]
-    
+
   - id: deploy-staging
     type: script
     run: ./deploy.sh staging {{inputs.version}}
     needs: [build, security-scan]
-    
+
   - id: smoke-test
     type: agent
     agent: tester
     prompt: "Run smoke tests on staging"
     needs: [deploy-staging]
-    
+
   - id: approve
     type: approval
     prompt: "Deploy {{inputs.version}} to production?"
     needs: [smoke-test]
-    
+
   - id: deploy-prod
     type: script
     run: ./deploy.sh production {{inputs.version}}
@@ -728,21 +736,21 @@ steps:
 
 ## Success Criteria
 
-| Criteria | Measurement |
-|----------|-------------|
-| Abilities load correctly | All YAML files parse without error |
+| Criteria                  | Measurement                                |
+| ------------------------- | ------------------------------------------ |
+| Abilities load correctly  | All YAML files parse without error         |
 | Validation catches errors | Invalid YAMLs rejected with clear messages |
-| Scripts execute | Exit codes captured, validation works |
-| Agents integrate | Can call any OpenAgents Control agent |
-| Enforcement works | Cannot skip steps when strict |
-| Approvals work | Human gate blocks until approved |
-| Context passes | Prior step outputs available to next |
+| Scripts execute           | Exit codes captured, validation works      |
+| Agents integrate          | Can call any OpenAgents Control agent      |
+| Enforcement works         | Cannot skip steps when strict              |
+| Approvals work            | Human gate blocks until approved           |
+| Context passes            | Prior step outputs available to next       |
 
 ---
 
 ## References
 
-- [Issue #33](https://github.com/darrenhinde/OpenAgentsControl/issues/33) - Original proposal
+- [Issue #33](https://github.com/topwebmaster/OpenAgentsControl/issues/33) - Original proposal
 - [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) - Plugin patterns
 - [OpenCode Skills](https://opencode.ai/docs/skills/) - Current skill system
 - [Scott Spence - Making Skills Reliable](https://scottspence.com/posts/how-to-make-claude-code-skills-activate-reliably)

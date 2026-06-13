@@ -7,17 +7,19 @@ After merging this PR, update these GitHub repository settings:
 **Current:** (needs update)
 
 **New Description:**
+
 ```
 AI agent framework for plan-first development workflows with approval-based execution. Multi-language support (TypeScript, Python, Go, Rust) with automatic testing, code review, and validation.
 ```
 
-**Website:** `https://github.com/darrenhinde/OpenAgentsControl`
+**Website:** `https://github.com/topwebmaster/OpenAgentsControl`
 
 ## 2. Topics (Add All 16)
 
 Go to: Settings → General → Topics
 
 **Must-Have Topics (10):**
+
 - `ai-agents`
 - `code-generation`
 - `developer-tools`
@@ -30,6 +32,7 @@ Go to: Settings → General → Topics
 - `workflow`
 
 **Nice-to-Have Topics (6):**
+
 - `prompt-engineering`
 - `go`
 - `rust`
@@ -42,6 +45,7 @@ Go to: Settings → General → Topics
 Go to: Settings → General → Social Preview
 
 **Action:** Upload a 1280x640px image showing:
+
 - Repository name
 - Tagline: "Plan-First AI Development Framework"
 - Key features icons (agents, testing, validation)
@@ -54,6 +58,7 @@ Go to: Settings → General → Social Preview
 Go to: Settings → General → Features
 
 **Enable:**
+
 - ✅ Wikis (for extended documentation)
 - ✅ Issues (already enabled)
 - ✅ Discussions (for community Q&A)
@@ -64,6 +69,7 @@ Go to: Settings → General → Features
 Go to: Issues → Labels
 
 **Add these labels:**
+
 - `good first issue` (color: #7057ff) - For newcomers
 - `help wanted` (color: #008672) - Community contributions welcome
 - `documentation` (color: #0075ca) - Documentation improvements
@@ -76,6 +82,7 @@ Go to: Issues → Labels
 Go to: Settings → General → Features → Discussions
 
 **Enable Discussions** and create these categories:
+
 - 💡 Ideas - Feature requests and suggestions
 - 🙏 Q&A - Questions and answers
 - 📣 Announcements - Updates and releases
@@ -87,6 +94,7 @@ Go to: Settings → General → Features → Discussions
 Go to: Settings → Branches → Add rule
 
 **For `main` branch:**
+
 - ✅ Require pull request reviews before merging
 - ✅ Require status checks to pass before merging
 - ✅ Require conversation resolution before merging
@@ -106,6 +114,7 @@ After completing the above:
 ## Quick Win Metrics
 
 After these changes, you should see within 1 week:
+
 - 📈 Improved GitHub search ranking for "AI agents", "code generation"
 - 👀 Increased profile views from topic pages
 - ⭐ More stars from improved discoverability

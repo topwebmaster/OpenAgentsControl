@@ -1,12 +1,15 @@
 # ContextScout Fix - Critical Files Missing from Installer
 
 ## Problem
+
 After running the installer, ContextScout fails with errors like:
+
 - "Cannot locate context root"
 - "Cannot discover context"
 - "paths.json not found"
 
 ## Root Cause
+
 Two CRITICAL files required by ContextScout were NOT included in the registry:
 
 1. **paths.json** (`.opencode/context/core/config/paths.json`)
@@ -22,6 +25,7 @@ Two CRITICAL files required by ContextScout were NOT included in the registry:
 ## Solution
 
 ### 1. Added Critical Files to Registry
+
 Created two new registry entries in `registry.json`:
 
 ```json
@@ -48,7 +52,9 @@ Created two new registry entries in `registry.json`:
 ```
 
 ### 2. Added to All Profiles
+
 Updated all 5 profiles to include these critical files:
+
 - `essential`
 - `developer`
 - `business`
@@ -56,7 +62,9 @@ Updated all 5 profiles to include these critical files:
 - `advanced`
 
 ### 3. Added ContextScout Dependencies
+
 Updated ContextScout's dependencies to explicitly require these files:
+
 ```json
 "dependencies": [
   "command:check-context-deps",
@@ -74,9 +82,11 @@ Updated ContextScout's dependencies to explicitly require these files:
 ## Files Modified
 
 ### Registry & Configuration
+
 - `registry.json` - Added 2 critical context entries, updated ContextScout dependencies
 
 ### Profiles
+
 - `.opencode/profiles/essential/profile.json` - Added critical files
 - `.opencode/profiles/developer/profile.json` - Added critical files
 - `.opencode/profiles/business/profile.json` - Added critical files
@@ -100,17 +110,20 @@ Installer File Test:
 ## Testing After Fix
 
 1. Run the installer:
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s essential
+curl -fsSL https://raw.githubusercontent.com/topwebmaster/OpenAgentsControl/main/install.sh | bash -s essential
 ```
 
 2. ContextScout should now work without errors:
+
 ```bash
 opencode
 # Then ask ContextScout to discover context
 ```
 
 3. Verify files were installed:
+
 ```bash
 ls -la .opencode/context/navigation.md
 ls -la .opencode/context/core/config/paths.json
@@ -118,9 +131,10 @@ ls -la .opencode/context/core/config/paths.json
 
 ## Why This Happened
 
-The installer uses `registry.json` to determine which files to download. If a file isn't listed in the registry, it won't be installed. 
+The installer uses `registry.json` to determine which files to download. If a file isn't listed in the registry, it won't be installed.
 
 These two files were essential infrastructure files that were:
+
 - Referenced by agent code
 - Required for ContextScout operation
 - Present in the repository
@@ -131,11 +145,13 @@ These two files were essential infrastructure files that were:
 To prevent this in the future:
 
 1. **Always run registry validation before committing:**
+
 ```bash
 bun run scripts/registry/validate-registry.ts
 ```
 
 2. **Test the installer after registry changes:**
+
 ```bash
 ./scripts/tests/test-installer-files.sh --local --profile=essential
 ```
