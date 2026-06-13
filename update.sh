@@ -20,6 +20,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Detect platform
 PLATFORM="$(uname -s)"
 case "$PLATFORM" in
@@ -49,7 +51,10 @@ else
 fi
 
 BRANCH="${OPENCODE_BRANCH:-main}"
-REPO_URL="https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/${BRANCH}"
+DEFAULT_REPO_URL="https://github.com/darrenhinde/OpenAgentsControl"
+REPO_URL="$DEFAULT_REPO_URL"
+RAW_URL="https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/${BRANCH}"
+LOCAL_SOURCE_ROOT=""
 
 # CLI argument for custom install dir (overrides env var)
 CUSTOM_INSTALL_DIR=""
@@ -106,6 +111,84 @@ print_usage() {
     echo "  # Update via environment variable"
     echo "  export OPENCODE_INSTALL_DIR=~/.config/opencode && $0"
 }
+
+normalize_repo_url() {
+    local repo_url="$1"
+
+    if [ -z "$repo_url" ]; then
+        echo ""
+        return 1
+    fi
+
+    case "$repo_url" in
+        git@github.com:*)
+            repo_url="https://github.com/${repo_url#git@github.com:}"
+            ;;
+        ssh://git@github.com/*)
+            repo_url="https://github.com/${repo_url#ssh://git@github.com/}"
+            ;;
+        https://github.com/*|http://github.com/*)
+            repo_url="${repo_url/http:\/\/github.com/https://github.com}"
+            ;;
+    esac
+
+    repo_url="${repo_url%.git}"
+    echo "$repo_url"
+    return 0
+}
+
+build_raw_url() {
+    local repo_url="$1"
+
+    if [[ "$repo_url" =~ ^https://github\.com/([^/]+)/([^/]+)$ ]]; then
+        echo "https://raw.githubusercontent.com/${BASH_REMATCH[1]}/${BASH_REMATCH[2]}/${BRANCH}"
+    else
+        echo "https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/${BRANCH}"
+    fi
+}
+
+init_repository_context() {
+    local origin_url=""
+
+    if [ -d "$SCRIPT_DIR/.git" ] || (command -v git > /dev/null 2>&1 && git -C "$SCRIPT_DIR" rev-parse --is-inside-work-tree > /dev/null 2>&1); then
+        origin_url="$(git -C "$SCRIPT_DIR" remote get-url origin 2>/dev/null || true)"
+    fi
+
+    if [ -n "$origin_url" ]; then
+        REPO_URL="$(normalize_repo_url "$origin_url")"
+    elif [ -f "$SCRIPT_DIR/registry.json" ] && command -v jq > /dev/null 2>&1; then
+        local registry_repo_url
+        registry_repo_url="$(jq -r '.repository // empty' "$SCRIPT_DIR/registry.json" 2>/dev/null | tr -d '\r')"
+        if [ -n "$registry_repo_url" ]; then
+            REPO_URL="$(normalize_repo_url "$registry_repo_url")"
+        fi
+    fi
+
+    if [ -z "$REPO_URL" ]; then
+        REPO_URL="$DEFAULT_REPO_URL"
+    fi
+
+    RAW_URL="$(build_raw_url "$REPO_URL")"
+
+    if [ -f "$SCRIPT_DIR/registry.json" ] && [ -d "$SCRIPT_DIR/.opencode" ]; then
+        LOCAL_SOURCE_ROOT="$SCRIPT_DIR"
+    fi
+}
+
+fetch_update_source() {
+    local relative_path="$1"
+    local destination_path="$2"
+    local repo_relative_path=".opencode/${relative_path}"
+
+    if [ -n "$LOCAL_SOURCE_ROOT" ] && [ -f "$LOCAL_SOURCE_ROOT/$repo_relative_path" ]; then
+        cp "$LOCAL_SOURCE_ROOT/$repo_relative_path" "$destination_path"
+        return $?
+    fi
+
+    curl -fsSL "${RAW_URL}/${repo_relative_path}" -o "$destination_path"
+}
+
+init_repository_context
 
 #############################################################################
 # Path Resolution
@@ -180,11 +263,15 @@ resolve_install_dir() {
     # Auto-detect: prefer local project install, fall back to global
     local local_path
     local_path="$(pwd)/.opencode"
+    local script_local_path
+    script_local_path="${SCRIPT_DIR}/.opencode"
     local global_path
     global_path=$(get_global_install_path)
 
     if [ -d "$local_path" ]; then
         echo "$local_path"
+    elif [ -d "$script_local_path" ]; then
+        echo "$script_local_path"
     elif [ -d "$global_path" ]; then
         echo "$global_path"
     else
@@ -208,13 +295,12 @@ update_component() {
         return 1
     fi
 
-    local url="${REPO_URL}/.opencode/${relative_path}"
     local backup="${path}.backup"
 
     cp "$path" "$backup"
     BACKUP_FILES+=("$backup")
 
-    if curl -fsSL "$url" -o "$path" 2>/dev/null; then
+    if fetch_update_source "$relative_path" "$path" 2>/dev/null; then
         print_success "Updated $path"
         rm -f "$backup"
         # Remove from tracking array (bash 3.2 compatible)
@@ -333,6 +419,10 @@ main() {
         exit 1
     fi
 
+    print_info "Repository source: ${CYAN}${REPO_URL}${NC}"
+    if [ -n "$LOCAL_SOURCE_ROOT" ]; then
+        print_info "Using local repository source: ${CYAN}${LOCAL_SOURCE_ROOT}${NC}"
+    fi
     print_info "Updating installation at: ${CYAN}${install_dir}${NC}"
     print_step "Updating components..."
 
