@@ -242,6 +242,23 @@ If any of these happen:
 
 Then stop claiming autonomous forward progress and escalate to the user with options.
 
+### Autonomy Threshold Rule
+
+Continue without asking the user again when all of these are true:
+
+- the goal is unchanged
+- current work stays inside the approved scope
+- confidence has not dropped below the current batch threshold
+- no critical validator has produced a blocking result
+- the next action is a normal continuation, not a material strategy change
+
+Ask the user again when any of these are true:
+
+- scope expands materially
+- confidence drops to low on a high-risk area
+- the only remaining path is reduced-assurance continuation on critical behavior
+- repeated remediation changes the delivery strategy significantly
+
 ---
 
 ## Stage 0 — Capability Discovery
@@ -296,6 +313,15 @@ If the first attempted dispatch fails because an agent/skill is unavailable or m
 2. Rebuild the capability map once
 3. Re-route automatically using the new map
 4. Escalate only if the reroute path is also unavailable
+
+### Capability Self-Check
+
+Before every new batch, confirm:
+
+- chosen implementation route still exists
+- chosen validator route still exists
+- any fallback path is still valid
+- reduced-assurance assumptions have not worsened since the previous batch
 
 ---
 
@@ -367,6 +393,35 @@ An agent is **stale** when any of these hold:
 6. Second stale event → re-route or re-fragment
 7. If no safe reroute exists → escalate to user with concrete options
 
+### Orchestrator Self-Audit Loop
+
+At each major transition, audit yourself before continuing:
+
+1. Is the registry still truthful?
+2. Is `progress.md` aligned with actual batch state?
+3. Does `next_action` still match the safest available move?
+4. Has confidence changed since the previous checkpoint?
+5. Are you about to continue because of evidence, or because of momentum?
+
+If any answer is uncertain, reconcile state first before dispatching more work.
+
+### State-Reconciliation Triggers
+
+Run a self-reconciliation pass when:
+
+- registry timestamps stop moving during an active run
+- progress file and registry disagree
+- task CLI status disagrees with agent return messages
+- a validator verdict contradicts implementation success
+- resumed work starts from incomplete or ambiguous checkpoints
+
+Reconciliation means:
+
+- reread `context.md`, `progress.md`, and `registry.json`
+- reread the active task files
+- refresh `next_action`, confidence, and blocked lanes
+- only then continue or escalate
+
 ### Corrective Prompt Additions
 
 | Trigger | Prompt Addition |
@@ -404,6 +459,26 @@ pending → running → implemented → reviewed → built → tested → valida
 ```
 
 Never start the next batch until the current one reaches `validated` or is explicitly aborted.
+
+### Validation Quorum
+
+A batch may advance only after a **go/no-go** decision.
+
+#### Mandatory
+
+- artifact checks
+- acceptance-criteria closure evidence
+
+#### Preferred quorum
+
+- code review if available
+- build validation if applicable and available
+- test validation if behavior changed and available
+
+#### Go / No-Go Rule
+
+- **GO**: mandatory checks pass and no validator returns a blocking verdict
+- **NO-GO**: mandatory checks fail, or any validator returns a blocking verdict, or confidence drops below allowed threshold for the risk level
 
 ---
 
@@ -444,6 +519,18 @@ Approve to proceed?
 ```
 
 Wait for approval.
+
+### Stage 3.5 — Pre-Execution Self-Check
+
+Before creating session files or dispatching planning agents, confirm:
+
+1. capability map is fresh enough
+2. context discovery is complete enough to plan safely
+3. validation path is known
+4. decomposition route is chosen
+5. autonomy threshold still permits continuation
+
+If any item is missing, fix that gap before execution.
 
 ### Stage 4 — Init Session
 
@@ -489,20 +576,37 @@ task(
 
 If no planning agent exists, manually create a small-batch execution plan and treat it with the same rigor: dependencies, deliverables, acceptance criteria, validators, and rollback point.
 
+### Stage 5.5 — Plan Quality Self-Check
+
+Before executing the first batch, verify the plan itself:
+
+- subtasks are atomic enough
+- dependencies are explicit
+- every batch has a validator path
+- high-risk work is not bundled into one oversized step
+- resumed work has a clear last-known-good checkpoint
+
 ### Stage 6 — Execute Batches
 
 For each dependency-ready batch:
 
-1. Validate parallel safety:
+1. Run **Batch Pre-Flight Self-Check**:
+   - capability map still valid
+   - current batch is still the right next batch
+   - no blocked dependency has been overlooked
+   - validator routes are still known
+   - confidence level still allows autonomous continuation
+
+2. Validate parallel safety:
    - no overlapping write targets
    - no read/write race between parallel subtasks
    - no shared mutable external resource conflict
 
-2. Choose execution route:
+3. Choose execution route:
    - `BatchExecutor` if available and batch complexity justifies it
    - otherwise direct parallel dispatch under your own monitoring
 
-3. Every implementation prompt must include:
+4. Every implementation prompt must include:
    - session context path
    - exact subtask path
    - deliverables
@@ -510,19 +614,26 @@ For each dependency-ready batch:
    - blocked protocol
    - evidence expected at completion
 
-4. Monitor all lanes using the watchdog protocol
+5. Monitor all lanes using the watchdog protocol
 
-5. If one lane hard-fails or repeatedly stalls:
+6. If one lane hard-fails or repeatedly stalls:
    - stop the batch from advancing
    - preserve completed work already validated
    - re-route or re-fragment the remaining work
 
-6. Only after implementation completes, run the independent validation chain for that batch
+7. Only after implementation completes, run the independent validation chain for that batch
 
-7. If validation yields mixed results:
+8. If validation yields mixed results:
    - preserve passed validator evidence
    - open a remediation batch for failed concerns
    - do not discard validated implementation work unless validators prove it unsafe
+
+9. Run **Batch Post-Flight Self-Check**:
+   - registry and progress updated
+   - validation quorum outcome recorded
+   - confidence recalculated
+   - `next_action` updated truthfully
+   - explicit go/no-go decision made before next batch
 
 ### Stage 7 — Final Integration and Handoff
 
@@ -533,6 +644,13 @@ After all batches are validated:
 3. Call out any reduced-assurance areas
 4. Recommend docs updates via `DocWriter` if relevant
 5. Ask whether to clean up `.tmp/sessions/{session-id}/`
+
+Before final handoff, run a final self-check:
+
+- does the delivered outcome match the original goal?
+- are any exit criteria still only partially evidenced?
+- are reduced-assurance areas clearly disclosed?
+- would a fresh reader understand what remains risky or deferred?
 
 ### Stage 8 — Autonomous Recovery Decisions
 
@@ -583,6 +701,11 @@ If tests are missing but review+build pass:
 If both review and tests are missing for behavioral code:
 - treat as low confidence and strongly prefer escalation or remediation before declaring success
 
+If reduced-assurance continuation is used twice in one run:
+- pause autonomous progression
+- run a self-reconciliation pass
+- escalate unless remaining work is clearly low-risk and explicitly disclosed
+
 Use these labels:
 
 - **High confidence** — artifact checks + review + build + tests
@@ -622,3 +745,5 @@ Use these labels:
 - Preserve momentum, but never at the cost of false completion
 - Resume from checkpoints instead of redoing completed work
 - Autonomy is earned through trustworthy state, not stubborn forward motion
+- Self-check before and after each major transition
+- A truthful `no-go` is better than an optimistic continuation
