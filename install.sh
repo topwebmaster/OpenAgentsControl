@@ -12,6 +12,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Detect platform
 PLATFORM="$(uname -s)"
 case "$PLATFORM" in
@@ -44,22 +46,109 @@ else
 fi
 
 # Configuration
-REPO_URL="https://github.com/darrenhinde/OpenAgentsControl"
+DEFAULT_REPO_URL="https://github.com/darrenhinde/OpenAgentsControl"
 BRANCH="${OPENCODE_BRANCH:-main}"  # Allow override via environment variable
+REPO_URL="$DEFAULT_REPO_URL"
 RAW_URL="https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/${BRANCH}"
+REGISTRY_URL=""
+LOCAL_SOURCE_ROOT=""
 
-# Registry URL - supports local fallback for development
-# Priority: 1) REGISTRY_URL env var, 2) Local registry.json, 3) Remote GitHub
-if [ -n "$REGISTRY_URL" ]; then
-    # Use explicitly set REGISTRY_URL (for testing)
-    :
-elif [ -f "./registry.json" ]; then
-    # Use local registry.json if it exists (for development)
-    REGISTRY_URL="file://$(pwd)/registry.json"
-else
-    # Default to remote GitHub registry
-    REGISTRY_URL="${RAW_URL}/registry.json"
-fi
+normalize_repo_url() {
+    local repo_url="$1"
+
+    if [ -z "$repo_url" ]; then
+        echo ""
+        return 1
+    fi
+
+    case "$repo_url" in
+        git@github.com:*)
+            repo_url="https://github.com/${repo_url#git@github.com:}"
+            ;;
+        ssh://git@github.com/*)
+            repo_url="https://github.com/${repo_url#ssh://git@github.com/}"
+            ;;
+        https://github.com/*|http://github.com/*)
+            repo_url="${repo_url/http:\/\/github.com/https://github.com}"
+            ;;
+    esac
+
+    repo_url="${repo_url%.git}"
+    echo "$repo_url"
+    return 0
+}
+
+build_raw_url() {
+    local repo_url="$1"
+
+    if [[ "$repo_url" =~ ^https://github\.com/([^/]+)/([^/]+)$ ]]; then
+        echo "https://raw.githubusercontent.com/${BASH_REMATCH[1]}/${BASH_REMATCH[2]}/${BRANCH}"
+    else
+        echo "https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/${BRANCH}"
+    fi
+}
+
+init_repository_context() {
+    local local_registry_path="${SCRIPT_DIR}/registry.json"
+    local origin_url=""
+
+    # Registry URL priority: 1) explicit env var, 2) local repo registry, 3) remote registry
+    if [ -n "$REGISTRY_URL" ]; then
+        :
+    elif [ -f "$local_registry_path" ]; then
+        REGISTRY_URL="file://${local_registry_path}"
+    else
+        REGISTRY_URL=""
+    fi
+
+    if [[ "$REGISTRY_URL" == file://* ]]; then
+        local local_registry_root
+        local_registry_root="$(dirname "${REGISTRY_URL#file://}")"
+        if [ -d "$local_registry_root" ]; then
+            LOCAL_SOURCE_ROOT="$local_registry_root"
+        fi
+    fi
+
+    if command -v git > /dev/null 2>&1 && git -C "$SCRIPT_DIR" rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+        origin_url="$(git -C "$SCRIPT_DIR" remote get-url origin 2>/dev/null || true)"
+    fi
+
+    if [ -n "$origin_url" ]; then
+        REPO_URL="$(normalize_repo_url "$origin_url")"
+    elif [ -n "$LOCAL_SOURCE_ROOT" ] && [ -f "$LOCAL_SOURCE_ROOT/registry.json" ] && command -v jq > /dev/null 2>&1; then
+        local registry_repo_url
+        registry_repo_url="$(jq -r '.repository // empty' "$LOCAL_SOURCE_ROOT/registry.json" 2>/dev/null | tr -d '\r')"
+        if [ -n "$registry_repo_url" ]; then
+            REPO_URL="$(normalize_repo_url "$registry_repo_url")"
+        fi
+    fi
+
+    if [ -z "$REPO_URL" ]; then
+        REPO_URL="$DEFAULT_REPO_URL"
+    fi
+
+    RAW_URL="$(build_raw_url "$REPO_URL")"
+
+    if [ -z "$REGISTRY_URL" ]; then
+        REGISTRY_URL="${RAW_URL}/registry.json"
+    fi
+}
+
+fetch_component_file() {
+    local source_path="$1"
+    local destination_path="$2"
+
+    mkdir -p "$(dirname "$destination_path")"
+
+    if [ -n "$LOCAL_SOURCE_ROOT" ] && [ -f "$LOCAL_SOURCE_ROOT/$source_path" ]; then
+        cp "$LOCAL_SOURCE_ROOT/$source_path" "$destination_path"
+        return $?
+    fi
+
+    curl -fsSL "${RAW_URL}/${source_path}" -o "$destination_path"
+}
+
+init_repository_context
 
 INSTALL_DIR="${OPENCODE_INSTALL_DIR:-.opencode}"  # Allow override via environment variable
 TEMP_DIR="/tmp/opencode-installer-$$"
@@ -275,6 +364,9 @@ fetch_registry() {
         if [ -f "$local_path" ]; then
             cp "$local_path" "$TEMP_DIR/registry.json"
             print_success "Using local registry: $local_path"
+            if [ -n "$LOCAL_SOURCE_ROOT" ]; then
+                print_info "Using local repository source: $LOCAL_SOURCE_ROOT"
+            fi
         else
             print_error "Local registry not found: $local_path"
             exit 1
@@ -494,7 +586,7 @@ check_interactive_mode() {
         echo "For interactive mode, download the script first:"
         echo ""
         echo -e "${CYAN}# Download the script${NC}"
-        echo "curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh -o install.sh"
+        echo "curl -fsSL ${RAW_URL}/install.sh -o install.sh"
         echo ""
         echo -e "${CYAN}# Run interactively${NC}"
         echo "bash install.sh"
@@ -502,7 +594,7 @@ check_interactive_mode() {
         echo "Or use a profile directly:"
         echo ""
         echo -e "${CYAN}# Quick install with profile${NC}"
-        echo "curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s essential"
+        echo "curl -fsSL ${RAW_URL}/install.sh | bash -s essential"
         echo ""
         echo "Available profiles: essential, developer, business, full, advanced"
         echo ""
@@ -1142,10 +1234,9 @@ perform_installation() {
                 fi
                 
                 # Download file
-                local url="${RAW_URL}/${file_path}"
                 mkdir -p "$(dirname "$dest")"
                 
-                if curl -fsSL "$url" -o "$dest"; then
+                if fetch_component_file "$file_path" "$dest"; then
                     # Transform paths for global installation
                     if [[ "$INSTALL_DIR" != ".opencode" ]] && [[ "$INSTALL_DIR" != *"/.opencode" ]]; then
                         local expanded_path="${INSTALL_DIR/#\~/$HOME}"
@@ -1185,12 +1276,10 @@ perform_installation() {
             fi
             
             # Download component
-            local url="${RAW_URL}/${path}"
-            
             # Create parent directory if needed
             mkdir -p "$(dirname "$dest")"
-            
-            if curl -fsSL "$url" -o "$dest"; then
+
+            if fetch_component_file "$path" "$dest"; then
                 # Transform paths for global installation (any non-local path)
                 # Local paths: .opencode or */.opencode
                 if [[ "$INSTALL_DIR" != ".opencode" ]] && [[ "$INSTALL_DIR" != *"/.opencode" ]]; then
@@ -1433,7 +1522,7 @@ main() {
                 echo "  $0 developer"
                 echo ""
                 echo -e "  ${CYAN}# Install from URL (non-interactive)${NC}"
-                echo "  curl -fsSL https://raw.githubusercontent.com/darrenhinde/OpenAgentsControl/main/install.sh | bash -s developer"
+                echo "  curl -fsSL ${RAW_URL}/install.sh | bash -s developer"
                 echo ""
                 echo -e "${BOLD}Platform Support:${NC}"
                 echo "  ✓ Linux (bash 3.2+)"
